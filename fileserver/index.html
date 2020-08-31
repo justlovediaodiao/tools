@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件服务-文件列表</title>
+</head>
+
+<body>
+    <pre>
+        {{ range . }}
+        <a href="/file?name={{ . }}">{{ . }}</a>
+        {{ end }}
+    </pre>
+</body>
+
+</html>

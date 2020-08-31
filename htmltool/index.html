@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工具页</title>
+  <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+
+</head>
+
+<body>
+  <div id="app">
+    <el-tabs>
+      <el-tab-pane label="json">
+        <el-input style="margin: 15px 0px;" spellcheck="false" type="textarea" :rows="20" v-model="json_text">
+        </el-input>
+        <el-button type="primary" @click="json_format">格式化校验</el-button>
+        <el-button type="primary" plain @click="json_compress">压缩</el-button>
+      </el-tab-pane>
+      <el-tab-pane label="时间戳">
+        <div style="margin: 15px 0px;">
+          <label style="width: 80px; display: inline-block;">时间戳</label>
+          <el-input style="width: 180px;" clearable v-model="ts_second"></el-input>
+          <el-button type="primary" style="margin: 0px 15px;" @click="second_to_time">转换<i
+              class="el-icon-d-arrow-right"></i></el-button>
+          <el-input style="width: 180px;" v-model="ts_time"></el-input>
+        </div>
+        <div style="margin: 15px 0px;">
+          <label style="width: 80px; display: inline-block;">时间</label>
+          <el-input style="width: 180px;" clearable v-model="ts_str"></el-input>
+          <el-button type="primary" style="margin: 0px 15px;" plain @click="time_to_second">转换<i
+              class="el-icon-d-arrow-right"></i></el-button>
+          <el-input style="width: 180px;" v-model="ts_value"></el-input>
+        </div>
+      </el-tab-pane>
+      <el-tab-pane label="正则">
+        <el-row style="margin: 15px 0px;">
+          <el-col :span="12">
+            <el-input placeholder="正则" v-model="re_pattern"></el-input>
+          </el-col>
+          <el-col :span="12">
+            <el-button style="margin: 0px 15px;" type="primary" @click="re_match">匹配</el-button>
+            <el-checkbox style="margin: 0px 15px;" v-model="re_g">全局</el-checkbox>
+            <el-checkbox style="margin: 0px 15px;" v-model="re_i">不区分大小写</el-checkbox>
+          </el-col>
+        </el-row>
+        <el-input style="margin: 15px 0px;" spellcheck="false" type="textarea" :rows="15" placeholder="待匹配文本"
+          v-model="re_text"></el-input>
+        <el-input style="margin: 15px 0px;" spellcheck="false" type="textarea" :rows="12" placeholder="匹配结果"
+          v-model="re_result"></el-input>
+      </el-tab-pane>
+      <el-tab-pane label="编解码">
+        <el-tabs tab-position="left" style="margin-top: 15px;">
+          <el-tab-pane label="base64">
+            <el-row :gutter="15">
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="base64_text"></el-input>
+              </el-col>
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="base64_result"></el-input>
+              </el-col>
+            </el-row>
+            <div style="float: right; margin-top: 15px;">
+              <el-button type="primary" plain @click="base64_encode">编码</el-button>
+              <el-button type="primary" @click="base64_decode">解码</el-button>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="urlencode">
+            <el-row :gutter="15">
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="url_text"></el-input>
+              </el-col>
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="url_result"></el-input>
+              </el-col>
+            </el-row>
+            <div style="float: right; margin-top: 15px;">
+              <el-button type="primary" plain @click="url_encode">编码</el-button>
+              <el-button type="primary" @click="url_decode">解码</el-button>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </el-tab-pane>
+    </el-tabs>
+  </div>
+
+  <script src="vue/dist/vue.min.js"></script>
+  <script src="element-ui/lib/index.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        json_text: null,
+        ts_second: null,
+        ts_time: null,
+        ts_str: null,
+        ts_value: null,
+        re_pattern: null,
+        re_g: true,
+        re_i: false,
+        re_text: null,
+        re_result: null,
+        base64_text: null,
+        base64_result: null,
+        url_text: null,
+        url_result: null
+      },
+      created: function () {
+        let now = new Date();
+        this.ts_second = parseInt(now.getTime() / 1000);
+        this.ts_str = this.strftime(now);
+      },
+      methods: {
+        json_format() {
+          if (!this.json_text) {
+            return;
+          }
+          try {
+            let json = JSON.parse(this.json_text);
+            this.json_text = JSON.stringify(json, null, 4);
+            this.$message.success("正确的json");
+          } catch (e) {
+            this.$message.error(e.message);
+          }
+        },
+        json_compress() {
+          if (!this.json_text) {
+            return;
+          }
+          try {
+            let json = JSON.parse(this.json_text);
+            this.json_text = JSON.stringify(json);
+          } catch (e) {
+            this.$message.error(e.message);
+          }
+        },
+        strftime(val) {
+          let f = v => v < 10 ? `0${v}` : v.toString();
+          return `${val.getFullYear()}-${f(val.getMonth() + 1)}-${f(val.getDate())} ${f(val.getHours())}:${f(val.getMinutes())}:${f(val.getSeconds())}`;
+        },
+        second_to_time() {
+          if (!this.ts_second) {
+            this.ts_time = null;
+            return;
+          }
+          let value = new Date(this.ts_second * 1000);
+          if (isNaN(value.getTime())) {
+            this.ts_time = null;
+            this.$message.error("错误的时间戳");
+          } else {
+            this.ts_time = this.strftime(value);
+          }
+        },
+        time_to_second() {
+          if (!this.ts_str) {
+            this.ts_value = null;
+            return;
+          }
+          let value = new Date(this.ts_str);
+          if (isNaN(value.getTime())) {
+            this.ts_value = null;
+            this.$message.error("错误的时间");
+          } else {
+            this.ts_value = value.getTime() / 1000;
+          }
+        },
+        re_match() {
+          if (!this.re_pattern || !this.re_text) {
+            return;
+          }
+          let flag = "";
+          if (this.re_i) {
+            flag += "i";
+          }
+          if (this.re_g) {
+            flag += "g";
+          }
+          let re = new RegExp(this.re_pattern, flag);
+          let result = this.re_text.match(re);
+          if (!result) {
+            this.re_result = null;
+          } else {
+            this.re_result = result.join('\n');
+          }
+        },
+        base64_encode() {
+          if (!this.base64_text) {
+            return;
+          }
+          try {
+            this.base64_result = btoa(this.base64_text);
+          } catch (e) {
+            this.base64_result = null;
+            this.$message.error(e.message);
+          }
+        },
+        base64_decode() {
+          try {
+            this.base64_result = atob(this.base64_text);
+          } catch (e) {
+            this.base64_result = null;
+            this.$message.error(e.message);
+          }
+        },
+        url_encode() {
+          if (!this.url_text) {
+            return;
+          }
+          try {
+            this.url_result = encodeURIComponent(this.url_text);
+          } catch (e) {
+            this.url_result = null;
+            this.$message.error(e.message);
+          }
+        },
+        url_decode() {
+          try {
+            this.url_result = decodeURIComponent(this.url_text);
+          } catch (e) {
+            this.url_result = null;
+            this.$message.error(e.message);
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>
