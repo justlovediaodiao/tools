@@ -2,6 +2,7 @@ async function registScript() {
     let script = document.createElement('script');
     script.src = "https://unpkg.com/ajax-hook@2.0.3/dist/ajaxhook.min.js";
     document.getElementsByTagName('head')[0].appendChild(script);
+    // wait for script loaded
     while (typeof(ah) === 'undefined') {
         await new Promise(reslove => setTimeout(reslove, 1000));
     }
@@ -9,7 +10,6 @@ async function registScript() {
 
 // send request by XMLHttpRequest.
 function send(req) {
-    let xhr = new window['_rxhr']();    // this is the real XMLHttpRequest
     xhr.withCredentials = req.withCredentials;
     xhr.open(req.method, req.url, req.async !== false, req.user, req.password);
     for (var key in req.headers) {
@@ -34,4 +34,4 @@ function onError(err, handler) {
 }
 
 await registScript();
-ah.proxy({onRequest, onResponse, onError});
+const xhr = ah.proxy({onRequest, onResponse, onError});
