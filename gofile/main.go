@@ -13,9 +13,14 @@ import (
 var (
 	dir    = "./"
 	listen = "127.0.0.1:8021"
+	key    = ""
 )
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	if key != "" && key != r.Header.Get("X-AUTH-KEY") {
+		response(w, 403)
+		return
+	}
 	if r.Method == "GET" {
 		download(w, r)
 	} else if r.Method == "POST" {
@@ -117,6 +122,7 @@ func saveFile(filename string, reader io.Reader) error {
 func main() {
 	flag.StringVar(&dir, "d", dir, "root directory")
 	flag.StringVar(&listen, "l", listen, "listen address")
+	flag.StringVar(&key, "k", key, "authentication key")
 	flag.Parse()
 
 	fmt.Println(http.ListenAndServe(listen, http.HandlerFunc(handle)))

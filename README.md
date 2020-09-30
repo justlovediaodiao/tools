@@ -8,3 +8,4 @@ Simple useful tools.
 - gofile: Start a http server for file downloading and uploading.
 - text: Start a http server for text pasting.
 - htmltool: HTML pages for some functions.
+- xhrhook: A javascript to hook XMLHttlRequest.
