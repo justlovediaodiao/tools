@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
-	"strconv"
+	"strings"
 )
 
 func lanIP() string {
@@ -41,61 +40,22 @@ func wrap(f http.Handler) http.Handler {
 	return http.HandlerFunc(h)
 }
 
-func serve(dir string, port int) {
-	var ip = lanIP()
-	if ip == "" {
-		ip = "0.0.0.0"
-	}
-	var addr = fmt.Sprintf("%s:%d", ip, port)
-	fmt.Printf("http://%s\n", addr)
+func serve(listen string, dir string) {
+	fmt.Printf("http://%s\n", listen)
 	var h = http.FileServer(http.Dir(dir))
-	var err = http.ListenAndServe(addr, wrap(h))
+	var err = http.ListenAndServe(listen, wrap(h))
 	if e, ok := err.(*net.OpError); ok && e.Op == "listen" {
-		fmt.Printf("can not listen on %s.\n", addr)
+		fmt.Printf("can not listen on %s.\n", listen)
 	}
-}
-
-func parseArgs() (dir string, port int, err error) {
-	if len(os.Args) == 3 {
-		dir = os.Args[1]
-		port, err = strconv.Atoi(os.Args[2])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	} else if len(os.Args) == 2 {
-		dir = os.Args[1]
-	}
-	if dir != "" {
-		_, err = os.Stat(dir)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	} else {
-		dir, err = os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-	if port != 0 {
-		if port < 1 || port > 65535 {
-			fmt.Println("port out of range")
-			err = errors.New("port out of range")
-			return
-		}
-	} else {
-		port = 80
-	}
-	return
 }
 
 func main() {
-	// usage: goftp [<dir>] [<port>]
-	dir, port, err := parseArgs()
-	if err != nil {
-		return
+	var listen, dir string
+	flag.StringVar(&listen, "l", "80", "listen address or port")
+	flag.StringVar(&dir, "d", "./", "serve directory")
+	flag.Parse()
+	if !strings.Contains(listen, ":") {
+		listen = fmt.Sprintf("%s:%s", lanIP(), listen)
 	}
-	serve(dir, port)
+	serve(listen, dir)
 }

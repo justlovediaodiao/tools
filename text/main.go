@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
-	"strconv"
+	"strings"
 )
 
 var text = ""
@@ -57,45 +56,21 @@ func lanIP() string {
 	return ""
 }
 
-func serve(port int) {
-	var ip = lanIP()
-	if ip == "" {
-		ip = "0.0.0.0"
-	}
-	var addr = fmt.Sprintf("%s:%d", ip, port)
-	fmt.Printf("http://%s\n", addr)
+func serve(listen string) {
+	fmt.Printf("http://%s\n", listen)
 	http.HandleFunc("/", handle)
-	var err = http.ListenAndServe(addr, nil)
+	var err = http.ListenAndServe(listen, nil)
 	if e, ok := err.(*net.OpError); ok && e.Op == "listen" {
-		fmt.Printf("can not listen on %s\n", addr)
+		fmt.Printf("can not listen on %s\n", listen)
 	}
-}
-
-func parseArgs() (port int, err error) {
-	if len(os.Args) == 2 {
-		port, err = strconv.Atoi(os.Args[1])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-	if port != 0 {
-		if port < 1 || port > 65535 {
-			fmt.Println("port out of range")
-			err = errors.New("port out of range")
-			return
-		}
-	} else {
-		port = 80
-	}
-	return
 }
 
 func main() {
-	// usage: gotext [<port>]
-	port, err := parseArgs()
-	if err != nil {
-		return
+	var listen string
+	flag.StringVar(&listen, "l", "80", "listen address or port")
+	flag.Parse()
+	if !strings.Contains(listen, ":") {
+		listen = fmt.Sprintf("%s:%s", lanIP(), listen)
 	}
-	serve(port)
+	serve(listen)
 }
