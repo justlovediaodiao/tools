@@ -67,13 +67,13 @@ func checkIP() {
 			return
 		}
 		var r = struct {
-			HttpStatus int `json:"httpstatus"`
+			HTTPStatus int `json:"httpstatus"`
 		}{}
 		if err = json.Unmarshal(content, &r); err != nil {
 			fmt.Printf("check ip failed, %v\n", err)
 			return
 		}
-		if r.HttpStatus != 200 {
+		if r.HTTPStatus != 200 {
 			switchIP()
 		}
 		// success
