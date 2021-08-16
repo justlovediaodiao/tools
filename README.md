@@ -7,5 +7,6 @@ Simple useful tools.
 - ftp: Start a http file server for file downloading.
 - gofile: Start a http server for file downloading and uploading.
 - text: Start a http server for text pasting.
+- qrcode: Generate or Scan QR code.
 - htmltool: HTML pages for some functions.
 - xhrhook: A javascript to hook XMLHttlRequest.
