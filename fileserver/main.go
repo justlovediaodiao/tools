@@ -4,8 +4,8 @@ import (
 	"crypto/md5"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"text/template"
 	"time"
@@ -66,7 +66,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(nil)

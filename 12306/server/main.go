@@ -1,8 +1,8 @@
 package main
 
 import (
-	"io/ioutil"
 	"net"
+	"os"
 
 	"fmt"
 )
@@ -10,6 +10,10 @@ import (
 func main() {
 	// receive udp packge and write remote ip to file when udp package content is string "justlovediaodiao"
 	addr, err := net.ResolveUDPAddr("udp", ":1333")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
 		fmt.Println(err)
@@ -23,7 +27,7 @@ func main() {
 			continue
 		}
 		if n == 16 && string(buff) == "justlovediaodiao" {
-			ioutil.WriteFile("/root/router.ip", []byte(addr.IP.String()), 0644)
+			os.WriteFile("/root/router.ip", []byte(addr.IP.String()), 0644)
 		}
 	}
 }

@@ -1,3 +1,3 @@
 module github.com/justlovediaodiao/tools/fileserver
 
-go 1.15
+go 1.16
