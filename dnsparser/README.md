@@ -7,14 +7,14 @@ Parse DNS udp packet.
 - Import
 
 ```bash
-go get github.com/justlovediaodiao/dns-parser
+go get github.com/justlovediaodiao/dnsparser
 ```
 
 - Usage
 
 ```go
 import "fmt"
-import dnsparser "github.com/justlovediaodiao/dns-parser"
+import "github.com/justlovediaodiao/dnsparser"
 
 // get dns packet from dump file or udp listener ...
 packet, _ := os.ReadFile("") 
