@@ -1,6 +1,7 @@
 # tools
 
 Simple useful tools.
+- ass: Adjuste timeline of ass subtitles.
 - dnsparser: Parse dns packet.
 - file: Start A http server for file uploading.
 - fileserver: A file server with authentication.
