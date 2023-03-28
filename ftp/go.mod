@@ -1,3 +1,3 @@
 module github.com/justlovediaodiao/tools/ftp
 
-go 1.16
+go 1.20
