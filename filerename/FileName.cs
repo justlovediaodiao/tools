@@ -6,18 +6,17 @@ namespace FileReName;
 
 class FileName
 {
-    public static string PreviewRename(string fileName, string spliter, string rule)
+    public static string PreviewRename(string fileName, string sep, string rule)
     {   
-        // MessageBox.Show(fileName + "\n" + spliter + "\n" + rule);
-        var strArr = fileName.Split(spliter.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        var arr = fileName.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         var regex = new Regex(@"\{\d+\}");
         var newName = rule;
         foreach (Match match in regex.Matches(rule))
         {
             var index = int.Parse(match.Value.Substring(1, match.Value.Length - 2));
-            if (index >= strArr.Length)
+            if (index >= arr.Length)
                 return string.Empty;
-            newName = newName.Replace(match.Value, strArr[index]);
+            newName = newName.Replace(match.Value, arr[index]);
         }
         if (!newName.Contains('.'))
         {
@@ -26,10 +25,10 @@ class FileName
         return newName;
     }
 
-    public static void Rename(string source, string src)
+    public static void Rename(string source, string target)
     {
         var dir = Path.GetDirectoryName(source);
-        var targetName = Path.Combine(dir, src);
+        var targetName = Path.Combine(dir, target);
         File.Move(source, targetName);
     }
 }

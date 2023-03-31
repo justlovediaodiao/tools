@@ -37,7 +37,7 @@ partial class MainForm
         this.previewButton = new System.Windows.Forms.Button();
         this.ruleInput = new System.Windows.Forms.TextBox();
         this.label2 = new System.Windows.Forms.Label();
-        this.splitInput = new System.Windows.Forms.TextBox();
+        this.sepInput = new System.Windows.Forms.TextBox();
         this.label1 = new System.Windows.Forms.Label();
         this.fileList = new System.Windows.Forms.ListView();
         this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
@@ -94,7 +94,7 @@ partial class MainForm
         this.panel1.Controls.Add(this.previewButton);
         this.panel1.Controls.Add(this.ruleInput);
         this.panel1.Controls.Add(this.label2);
-        this.panel1.Controls.Add(this.splitInput);
+        this.panel1.Controls.Add(this.sepInput);
         this.panel1.Controls.Add(this.label1);
         this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
         this.panel1.Location = new System.Drawing.Point(0, 25);
@@ -153,13 +153,13 @@ partial class MainForm
         this.label2.TabIndex = 9;
         this.label2.Text = "规则";
         // 
-        // splitInput
+        // sepInput
         // 
-        this.splitInput.Location = new System.Drawing.Point(60, 9);
-        this.splitInput.Name = "splitInput";
-        this.splitInput.Size = new System.Drawing.Size(62, 21);
-        this.splitInput.TabIndex = 8;
-        this.splitInput.Text = "[]";
+        this.sepInput.Location = new System.Drawing.Point(60, 9);
+        this.sepInput.Name = "sepInput";
+        this.sepInput.Size = new System.Drawing.Size(62, 21);
+        this.sepInput.TabIndex = 8;
+        this.sepInput.Text = "[]";
         // 
         // label1
         // 
@@ -257,7 +257,7 @@ partial class MainForm
     private System.Windows.Forms.Panel panel1;
     private System.Windows.Forms.TextBox ruleInput;
     private System.Windows.Forms.Label label2;
-    private System.Windows.Forms.TextBox splitInput;
+    private System.Windows.Forms.TextBox sepInput;
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.ListView fileList;
     private System.Windows.Forms.ColumnHeader columnHeader1;

@@ -39,7 +39,7 @@ public partial class MainForm : Form
         {
             if (!fileList.Items.Cast<ListViewItem>().Any(item => item.Tag.ToString() == file))
             {
-                var item = fileList.Items.Add(new ListViewItem(new[] { Path.GetFileName(file), "就绪", string.Empty }));
+                var item = fileList.Items.Add(new ListViewItem(new[] { Path.GetFileName(file), string.Empty, string.Empty }));
                 item.Tag = file;
                 item.Checked = true;
             }
@@ -132,7 +132,7 @@ public partial class MainForm : Form
 
     private bool Preview()
     {
-        if (splitInput.Text.Trim().Length == 0 || ruleInput.Text.Trim().Length == 0)
+        if (sepInput.Text.Trim().Length == 0 || ruleInput.Text.Trim().Length == 0)
         {
             MessageBox.Show("规则不完整", "提示");
             return false;
@@ -143,7 +143,7 @@ public partial class MainForm : Form
             {
                 continue;
             }
-            var fileName = FileName.PreviewRename(item.SubItems[0].Text, splitInput.Text, ruleInput.Text);
+            var fileName = FileName.PreviewRename(item.SubItems[0].Text, sepInput.Text, ruleInput.Text);
             if (!string.IsNullOrEmpty(fileName))
             {
                 item.SubItems[1].Text = AVAILABLE;
