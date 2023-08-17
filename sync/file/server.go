@@ -1,14 +1,12 @@
-package main
+package file
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"os"
 	"path"
-	"strings"
 )
 
 var directory string
@@ -32,6 +30,23 @@ func post(r *http.Request) string {
 	if err != nil {
 		return "Bad Request"
 	}
+
+	read := 0
+	total := int(r.ContentLength)
+	last := 0
+	callback := func(n int) {
+		if total > 0 {
+			read += n
+			nn := read
+			if n == 0 { // 0 means end
+				nn = total
+			}
+			if t := nn * 100 / total; t > last {
+				progressBar(total, nn)
+				last = t
+			}
+		}
+	}
 	for {
 		part, err := reader.NextPart()
 		if err != nil {
@@ -44,7 +59,7 @@ func post(r *http.Request) string {
 		var filename = part.FileName()
 		if filename != "" {
 			defer part.Close()
-			var res = saveFile(filename, part)
+			var res = saveFile(filename, part, callback)
 			if res != "" {
 				return res
 			}
@@ -53,7 +68,7 @@ func post(r *http.Request) string {
 	return "Success"
 }
 
-func saveFile(filename string, reader io.Reader) string {
+func saveFile(filename string, reader io.Reader, callback func(int)) string {
 	filename = path.Join(directory, filename)
 	_, err := os.Stat(filename)
 	if err == nil {
@@ -64,53 +79,58 @@ func saveFile(filename string, reader io.Reader) string {
 		return "Error"
 	}
 	defer file.Close()
-	_, err = io.Copy(file, reader)
+	err = ioCopy(file, reader, callback)
 	if err != nil {
 		return "Error"
 	}
 	return ""
 }
 
-func lanIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return ""
-	}
-	for _, address := range addrs {
-		if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.To4() != nil {
-			// C
-			if ipnet.IP[12] == 192 && ipnet.IP[13] == 168 {
-				return ipnet.IP.String()
+func ioCopy(dst io.Writer, src io.Reader, callback func(int)) error {
+	size := 32 * 1024
+	buf := make([]byte, size)
+	for {
+		n, err := src.Read(buf)
+		if n > 0 {
+			_, err = dst.Write(buf[:n])
+			if err != nil {
+				return err
 			}
-			// A
-			if ipnet.IP[12] == 10 {
-				return ipnet.IP.String()
+			callback(n)
+		}
+		if err != nil {
+			if err == io.EOF {
+				callback(0)
+				return nil
 			}
-			// B
-			if ipnet.IP[12] == 172 && ipnet.IP[13] >= 16 && ipnet.IP[13] <= 31 {
-				return ipnet.IP.String()
-			}
+			return err
 		}
 	}
-	return ""
 }
 
-func serve(listen string, dir string) {
+func progressBar(total, progress int) {
+	barLength := 50
+	filledLength := barLength * progress / total
+	bar := make([]byte, barLength, barLength)
+	for i := 0; i < barLength; i++ {
+		if i < filledLength {
+			bar[i] = '#'
+		} else {
+			bar[i] = '-'
+		}
+	}
+	percent := progress * 100 / total
+	fmt.Printf("\r[%s]%d%%", string(bar), percent)
+	if percent == 100 {
+		fmt.Println()
+	}
+}
+
+func Serve(listen string, dir string) {
 	fmt.Printf("http://%s\n", listen)
 	http.HandleFunc("/", handle)
 	var err = http.ListenAndServe(listen, nil)
 	if e, ok := err.(*net.OpError); ok && e.Op == "listen" {
 		fmt.Printf("can not listen on %s\n", listen)
 	}
-}
-
-func main() {
-	var listen, dir string
-	flag.StringVar(&listen, "l", "80", "listen address or port")
-	flag.StringVar(&dir, "d", "./", "serve directory")
-	flag.Parse()
-	if !strings.Contains(listen, ":") {
-		listen = fmt.Sprintf("%s:%s", lanIP(), listen)
-	}
-	serve(listen, dir)
 }

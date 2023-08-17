@@ -4,8 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"net"
-	"net/http"
 	"strings"
+
+	"github.com/justlovediaodiao/tools/sync/file"
+	"github.com/justlovediaodiao/tools/sync/ftp"
+	"github.com/justlovediaodiao/tools/sync/text"
 )
 
 func lanIP() string {
@@ -29,33 +32,27 @@ func lanIP() string {
 			}
 		}
 	}
-	return ""
-}
-
-func wrap(f http.Handler) http.Handler {
-	var h = func(w http.ResponseWriter, r *http.Request) {
-		w.Header()["Content-Type"] = []string{"application/octet-stream"}
-		f.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(h)
-}
-
-func serve(listen string, dir string) {
-	fmt.Printf("http://%s\n", listen)
-	var h = http.FileServer(http.Dir(dir))
-	var err = http.ListenAndServe(listen, wrap(h))
-	if e, ok := err.(*net.OpError); ok && e.Op == "listen" {
-		fmt.Printf("can not listen on %s.\n", listen)
-	}
+	return "0.0.0.0"
 }
 
 func main() {
-	var listen, dir string
+	var service, listen, dir string
+	flag.StringVar(&service, "s", "", "service name, ftp or file or text")
 	flag.StringVar(&listen, "l", "80", "listen address or port")
 	flag.StringVar(&dir, "d", "./", "serve directory")
 	flag.Parse()
 	if !strings.Contains(listen, ":") {
 		listen = fmt.Sprintf("%s:%s", lanIP(), listen)
 	}
-	serve(listen, dir)
+	switch service {
+	case "ftp":
+		ftp.Serve(listen, dir)
+
+	case "file":
+		file.Serve(listen, dir)
+	case "text":
+		text.Serve(listen)
+	default:
+		flag.Usage()
+	}
 }
