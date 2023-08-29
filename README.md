@@ -2,6 +2,7 @@
 
 Simple useful tools.
 - ass: Adjuste timeline of ass subtitles.
+- cube: Recover 2x2 magic cube.
 - dnsparser: Parse dns packet.
 - filerename: Batch rename files.
 - fileserver: A file server with authentication.
