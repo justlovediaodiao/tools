@@ -35,6 +35,9 @@ func visit(pre []*step) []*step {
 }
 
 func Recover(c *Cube) string {
+	if c.Recovered() {
+		return ""
+	}
 	cur := []*step{{c, ""}}
 	// any 2x2 cube can be recovered in 16 steps (only rotate right,front,up faces).
 	for i := 0; i < 16; i++ {

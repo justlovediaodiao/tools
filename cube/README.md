@@ -2,6 +2,30 @@
 
 It's used to recover 2x2 magic cube.
 
+## Usage
+
+```
+go build -o cube ./cmd
+```
+
+```
+Usage of ./cube:
+  -b string
+        colors of back face (default "OOOO")
+  -d string
+        colors of down face (default "YYYY")
+  -f string
+        colors of front face (default "RRRR")
+  -l string
+        colors of left face (default "GGGG")
+  -r string
+        colors of right face (default "BBBB")
+  -u string
+        colors of up face (default "WWWW")
+```
+
+Use by go code:
+
 ```go
 import "fmt"
 
