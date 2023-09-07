@@ -3,6 +3,10 @@ import struct
 from typing import NamedTuple, Literal
 
 
+class UnexpectedProtobuf(Exception):
+    pass
+
+
 class Field(NamedTuple):
     number: str
     type: Literal['varint', 'i64', 'i32', 'string', 'bytes', 'protobuf']
@@ -37,6 +41,8 @@ def parse(data: bytes) -> list[Field]:
         try:
             f = read_field(r)
         except EOFError:
+            raise UnexpectedProtobuf
+        if f is None:
             break
         fields.append(f)
     return fields
@@ -45,7 +51,7 @@ def parse(data: bytes) -> list[Field]:
 def guess_bytes(data: bytes) -> tuple[str, list[Field] | str | bytes]:
     try:
         return 'protobuf', parse(data)
-    except (BufferError, ValueError):
+    except UnexpectedProtobuf:
         pass
 
     try:
@@ -56,8 +62,11 @@ def guess_bytes(data: bytes) -> tuple[str, list[Field] | str | bytes]:
     return 'bytes', data
 
 
-def read_field(r: io.BytesIO) -> Field:
-    tag = read_varint(r)
+def read_field(r: io.BytesIO) -> Field | None:
+    try:
+        tag = read_varint(r)
+    except EOFError:
+        return None
     field_number = tag >> 3
     wire_type = tag & 0x07
     match wire_type:
@@ -73,8 +82,8 @@ def read_field(r: io.BytesIO) -> Field:
         case 5:
             wtype = 'i32'
             value = read_i32(r)
-        case x:
-            raise ValueError(f"unsupported wire type {x}")
+        case _:
+            raise UnexpectedProtobuf
     return Field(field_number, wtype, value)
 
 
@@ -110,7 +119,7 @@ def read(r: io.BytesIO, size: int) -> bytes:
     if len(b) == 0:
         raise EOFError
     if len(b) < size:
-        raise BufferError
+        raise UnexpectedProtobuf
     return b
 
 
