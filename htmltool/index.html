@@ -82,6 +82,15 @@
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
+      <el-tab-pane label="密码生成器">
+        <div style="margin: 15px 0px;">
+          <label style="width: 50px; display: inline-block;">长度</label>
+          <el-input style="width: 60px;" v-model="password_len"></el-input>
+          <el-button type="primary" style="margin: 0px 15px;" @click="password_gen">生成<i
+            class="el-icon-d-arrow-right"></i></el-button>
+          <el-input style="width: 350px;" v-model="password_result"></el-input>
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 
@@ -104,7 +113,9 @@
         base64_text: null,
         base64_result: null,
         url_text: null,
-        url_result: null
+        url_result: null,
+        password_len: 16,
+        password_result: null
       },
       created: function () {
         let now = new Date();
@@ -221,6 +232,15 @@
             this.url_result = null;
             this.$message.error(e.message);
           }
+        },
+        password_gen() {
+          const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
+          let password = "";
+          for (var i = 0; i < this.password_len; i++) {
+            var randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+          }
+          this.password_result = password;
         }
       }
     });
