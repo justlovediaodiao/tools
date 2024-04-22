@@ -5,6 +5,7 @@ HTML pages with some functions:
 - timestamp convert.
 - regex.
 - base64 and url encode/decode.
+- password generate.
 
 ### usage:
 
