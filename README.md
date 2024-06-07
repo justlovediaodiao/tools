@@ -11,4 +11,5 @@ Simple useful tools.
 - pb: Parse protobuf serialized data without .proto file.
 - qrcode: Generate or Scan QR code.
 - tunnel: Relay tcp/udp data.
+- wol: Send wake on lan package.
 - xhrhook: A javascript to hook XMLHttlRequest.
