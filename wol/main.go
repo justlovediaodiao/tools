@@ -41,9 +41,11 @@ func main() {
 	payload, err := buildPayload(mac)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	if err = sendPayload(addr, payload); err != nil {
 		fmt.Println(err)
+		return
 	}
 	fmt.Println("success")
 }
