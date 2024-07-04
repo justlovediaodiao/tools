@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/justlovediaodiao/tools/sync/file"
-	"github.com/justlovediaodiao/tools/sync/ftp"
-	"github.com/justlovediaodiao/tools/sync/text"
+	"github.com/justlovediaodiao/tools/file/down"
+	"github.com/justlovediaodiao/tools/file/text"
+	"github.com/justlovediaodiao/tools/file/up"
 )
 
 func lanIP() string {
@@ -69,11 +69,11 @@ func main() {
 	var listen, dir string
 
 	root := make(FlagSets)
-	fs := root.Add("ftp")
+	fs := root.Add("down")
 	fs.StringVar(&listen, "l", "80", "listen address or port")
 	fs.StringVar(&dir, "d", "./", "serve directory")
 
-	fs = root.Add("file")
+	fs = root.Add("up")
 	fs.StringVar(&listen, "l", "80", "listen address or port")
 	fs.StringVar(&dir, "d", "./", "serve directory")
 
@@ -90,10 +90,10 @@ func main() {
 	}
 
 	switch cmd {
-	case "ftp":
-		ftp.Serve(f(listen), dir)
-	case "file":
-		file.Serve(f(listen), dir)
+	case "down":
+		down.Serve(f(listen), dir)
+	case "up":
+		up.Serve(f(listen), dir)
 	case "text":
 		text.Serve(f(listen))
 	default:

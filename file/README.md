@@ -1,15 +1,15 @@
-# sync
+# file
 
-sync file or text.
+download/upload file or paste text.
 
 ```
-Usage of ./sync:
-ftp
+Usage of ./file:
+down
   -d string
         serve directory (default "./")
   -l string
         listen address or port (default "80")
-file
+up
   -d string
         serve directory (default "./")
   -l string
