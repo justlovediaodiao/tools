@@ -87,7 +87,7 @@ func saveFile(filename string, reader io.Reader, callback func(int)) string {
 }
 
 func ioCopy(dst io.Writer, src io.Reader, callback func(int)) error {
-	size := 32 * 1024
+	size := 512 * 1024
 	buf := make([]byte, size)
 	for {
 		n, err := src.Read(buf)
