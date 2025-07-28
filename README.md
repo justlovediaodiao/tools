@@ -8,6 +8,7 @@ Simple useful tools.
 - filerename: Batch rename files.
 - fileserver: A file server with authentication.
 - htmltool: HTML pages for some functions.
+- fmtp: Diff mtp device and local directory.
 - pb: Parse protobuf serialized data without .proto file.
 - qrcode: Generate or Scan QR code.
 - tunnel: Relay tcp/udp data.
