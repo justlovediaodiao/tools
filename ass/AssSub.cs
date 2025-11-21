@@ -1,48 +1,35 @@
-﻿using System;
-using System.IO;
+﻿namespace Ass;
 
-namespace Ass;
-
-public class Ass
+public class Ass(string file)
 {
-    private string _file;
-    private string[] _lines;
-
-    public Ass(string file)
-    {
-        _file = file;
-        _lines = File.ReadAllLines(file);
-    }
+    private readonly string _file = file;
+    private string[] _lines = File.ReadAllLines(file);
 
     private void Timeline(int millisecond, int start, int end)
     {
-        int startCol;
-        int endCol;
-        int startIndex;
-        int endIndex;
-        var index = EventsLine(out startCol, out endCol);
+        var (startCol, endCol, index) = EventsLine();
         for (int i = index; i < _lines.Length; i++)
         {
             if (_lines[i].StartsWith("Dialogue:"))
             {
                 //starttime
-                var time = GetTime(_lines[i], startCol, out startIndex, out endIndex);
+                var (time, startIndex, endIndex) = GetTime(_lines[i], startCol);
                 //is time between the start and end time
                 if (start > 0 && time < start)
                     continue;
                 if (end > 0 && time >= end)
                     continue;
                 time += millisecond;
-                _lines[i] = _lines[i].Substring(0, startIndex) + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i].Substring(endIndex + 1);
+                _lines[i] = _lines[i][..startIndex] + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i][(endIndex + 1)..];
                 //endtime
-                time = GetTime(_lines[i], endCol, out startIndex, out endIndex);
+                (time, startIndex, endIndex) = GetTime(_lines[i], endCol);
                 time += millisecond;
-                _lines[i] = _lines[i].Substring(0, startIndex) + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i].Substring(endIndex + 1);
+                _lines[i] = _lines[i][..startIndex] + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i][(endIndex + 1)..];
             }
         }
     }
 
-    private int EventsLine(out int start, out int end)
+    private (int StartCol, int EndCol, int Index) EventsLine()
     {
         //find the events and format line
         var number = -1;
@@ -59,9 +46,9 @@ public class Ass
         if (number == _lines.Length - 1 || !_lines[number + 1].StartsWith("Format:"))
             throw new FormatException("Format tag not found");
         //find the start and end column
-        var columns = _lines[number + 1].Split(new char[] { ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
-        start = -1;
-        end = -1;
+        var columns = _lines[number + 1].Split([':', ','], StringSplitOptions.RemoveEmptyEntries);
+        var start = -1;
+        var end = -1;
         for (int i = 1; i < columns.Length; i++)
         {
             if (columns[i].Trim() == "Start")
@@ -71,13 +58,13 @@ public class Ass
         }
         if (start == -1 || end == -1)
             throw new FormatException("can not locate the Start and End column");
-        return number + 1;
+        return (start, end, number + 1);
     }
 
-    private int GetTime(string line, int colIndex, out int start, out int end)
+    private (int Time, int StartIndex, int EndIndex) GetTime(string line, int colIndex)
     {
-        start = -1;
-        end = -1;
+        var start = -1;
+        var end = -1;
         if (colIndex == 0)
         {
             start = line.IndexOf(':') + 1;
@@ -102,25 +89,20 @@ public class Ass
         }
         if (start == -1 || end == -1)
             throw new FormatException("error Dialogue line");
-        var timeString = line.Substring(start, end - start + 1);
-        return (int)TimeSpan.Parse(timeString).TotalMilliseconds;
+        var timeString = line[start..(end + 1)];
+        var time = (int)TimeSpan.Parse(timeString).TotalMilliseconds;
+        return (time, start, end);
     }
 
-    public void Delay(int millisecond)
-    {
-        Timeline(millisecond, 0, 0);
-    }
+    public void Delay(int millisecond) => Timeline(millisecond, 0, 0);
 
-    public void Hurry(int millisecond)
-    {
-        Timeline(-millisecond, 0, 0);
-    }
+    public void Hurry(int millisecond) => Timeline(-millisecond, 0, 0);
 
     public void Save()
     {
         var name = Path.GetFileNameWithoutExtension(_file);
         var ext = Path.GetExtension(_file);
-        var filename = Path.Combine(Path.GetDirectoryName(_file), $"{name}_fix{ext}");
+        var filename = Path.Combine(Path.GetDirectoryName(_file) ?? "", $"{name}_fix{ext}");
         File.WriteAllLines(filename, _lines);
     }
 }
