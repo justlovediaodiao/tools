@@ -7,11 +7,8 @@ Used to backup files. It helps to delete local redundant files.
 ## Build
 
 ```
-dotnet publish -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true
+dotnet publish -p:PublishAot=true
 ```
-
-Executable file will be generated at `bin/Release/net6.0/win-x64/publish/fmtp.exe`.
-
 
 ## Usage
 

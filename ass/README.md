@@ -5,7 +5,7 @@ Ass is a tool for adjusting timeline of ass subtitle files.
 ### Build
 
 ```
-dotnet publish -c Release --no-self-contained /p:PublishSingleFile=true
+dotnet publish -p:PublishAot=true
 ```
 
 ### Usage
