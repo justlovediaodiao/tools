@@ -7,7 +7,7 @@ Used to backup files. It helps to delete local redundant files.
 ## Build
 
 ```
-dotnet publish -p:PublishAot=true
+dotnet publish
 ```
 
 ## Usage
