@@ -1,26 +1,26 @@
-using System;
-using System.IO;
 using System.Text.RegularExpressions;
 
-namespace FileReName;
+namespace filerename.Services;
 
-class FileName
+public partial class FileName
 {
+    [GeneratedRegex(@"\{\d+\}")]
+    private static partial Regex PlaceholderRegex();
+
     public static string PreviewRename(string fileName, string sep, string rule)
     {   
         var arr = fileName.Split(sep.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-        var regex = new Regex(@"\{\d+\}");
         var newName = rule;
-        foreach (Match match in regex.Matches(rule))
+        foreach (Match match in PlaceholderRegex().Matches(rule))
         {
-            var index = int.Parse(match.Value.Substring(1, match.Value.Length - 2));
+            var index = int.Parse(match.Value[1..^1]);
             if (index >= arr.Length)
                 return string.Empty;
             newName = newName.Replace(match.Value, arr[index]);
         }
         if (!newName.Contains('.'))
         {
-            newName = newName + Path.GetExtension(fileName);
+            newName += Path.GetExtension(fileName);
         }
         return newName;
     }
@@ -28,6 +28,7 @@ class FileName
     public static void Rename(string source, string target)
     {
         var dir = Path.GetDirectoryName(source);
+        if (dir is null) return;
         var targetName = Path.Combine(dir, target);
         File.Move(source, targetName);
     }

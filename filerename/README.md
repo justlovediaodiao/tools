@@ -4,10 +4,10 @@ Batch rename files.
 
 ### Build
 
-Require .Net Desktop Runtime.
+dotnet 10 is needed. Build:
 
 ```
-dotnet build -c Release
+dotnet publish
 ```
 
 ### Usage
