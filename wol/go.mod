@@ -1,3 +1,3 @@
 module github.com/justlovediaodiao/tools/wol
 
-go 1.21
+go 1.25

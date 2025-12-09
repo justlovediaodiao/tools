@@ -10,9 +10,10 @@ var text = ""
 
 func handle(w http.ResponseWriter, r *http.Request) {
 	var res string
-	if r.Method == "GET" {
+	switch r.Method {
+	case "GET":
 		res = render(text)
-	} else if r.Method == "POST" {
+	case "POST":
 		err := r.ParseForm()
 		if err != nil {
 			res = "Bad Request"
@@ -23,7 +24,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 			}
 			res = render(text)
 		}
-	} else {
+	default:
 		w.WriteHeader(405)
 		res = "405 Method Not Allowed"
 	}

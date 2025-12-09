@@ -1,3 +1,3 @@
 module github.com/justlovediaodiao/tools/dnsparser
 
-go 1.20
+go 1.25
