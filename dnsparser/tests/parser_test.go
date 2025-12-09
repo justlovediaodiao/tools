@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	dnsparser "github.com/justlovediaodiao/dns-parser"
+	dnsparser "github.com/justlovediaodiao/tools/dnsparser"
 )
 
 func TestQueryParser(t *testing.T) {
