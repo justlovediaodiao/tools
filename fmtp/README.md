@@ -1,8 +1,12 @@
 # fmtp
 
-~~Fuck MTP~~. Diff mtp device and local directory. Move local redundant files to `diff` directory.
+~~Fuck MTP~~. 
 
-Used to backup files. It helps to delete local redundant files.
+Sync local directory with MTP device directory:
+
+- Copy new files from MTP to local.
+- Move local-only files to `diff` folder for review before deletion.
+
 
 ## Build
 

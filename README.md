@@ -7,7 +7,7 @@ Simple useful tools.
 - file: Start a server to download/upload file or paste text on LAN.
 - filerename: Batch rename files.
 - htmltool: HTML pages for some functions.
-- fmtp: Diff mtp device and local directory.
+- fmtp: Sync mtp device and local directory.
 - pb: Parse protobuf serialized data without .proto file.
 - tunnel: Relay tcp/udp data.
 - wol: Send wake on lan package.
