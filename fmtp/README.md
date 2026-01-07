@@ -1,6 +1,6 @@
 # fmtp
 
-~~Fuck MTP~~. 
+~~Fuck MTP~~. Windows only.
 
 Sync local directory with MTP device directory:
 
