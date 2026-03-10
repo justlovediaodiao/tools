@@ -19,3 +19,13 @@ dotnet publish
 ```
 fmtp.exe <local directory> <mtp device directory>
 ```
+
+## Powershell Version
+
+No dotnet runtime or a self-contained executable (tens of MB). Only a few KB PowerShell script, delivering the same functionality.
+
+**Usage:**
+
+```
+fmtp.ps1 <local directory> <mtp device directory>
+```
