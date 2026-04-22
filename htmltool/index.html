@@ -79,6 +79,20 @@
               <el-button type="primary" @click="url_decode">解码</el-button>
             </div>
           </el-tab-pane>
+          <el-tab-pane label="unicode">
+            <el-row :gutter="15">
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="unicode_text"></el-input>
+              </el-col>
+              <el-col :span="12">
+                <el-input spellcheck="false" type="textarea" :rows="15" v-model="unicode_result"></el-input>
+              </el-col>
+            </el-row>
+            <div style="float: right; margin-top: 15px;">
+              <el-button type="primary" plain @click="unicode_encode">转Unicode</el-button>
+              <el-button type="primary" @click="unicode_decode">转中文</el-button>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
       <el-tab-pane label="密码生成器">
@@ -92,157 +106,230 @@
     </el-tabs>
   </div>
 
-  <script>
-    const app = Vue.createApp({
-      data() {
-        return {
-          json_text: null,
-          ts_second: null,
-          ts_time: null,
-          ts_str: null,
-          ts_value: null,
-          re_pattern: null,
-          re_g: true,
-          re_i: false,
-          re_text: null,
-          re_result: null,
-          base64_text: null,
-          base64_result: null,
-          url_text: null,
-          url_result: null,
-          password_len: 32,
-          password_result: null
+  <script type="module">
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        // JSON 工具
+        const json_text = ref(null);
+
+        // 时间戳工具
+        const ts_second = ref(null);
+        const ts_time = ref(null);
+        const ts_str = ref(null);
+        const ts_value = ref(null);
+
+        // 正则工具
+        const re_pattern = ref(null);
+        const re_g = ref(true);
+        const re_i = ref(false);
+        const re_text = ref(null);
+        const re_result = ref(null);
+
+        // 编解码工具
+        const base64_text = ref(null);
+        const base64_result = ref(null);
+        const url_text = ref(null);
+        const url_result = ref(null);
+        const unicode_text = ref(null);
+        const unicode_result = ref(null);
+
+        // 密码生成器
+        const password_len = ref(32);
+        const password_result = ref(null);
+
+        // 初始化
+        onMounted(() => {
+          const now = new Date();
+          ts_second.value = parseInt(now.getTime() / 1000);
+          ts_str.value = strftime(now);
+        });
+
+        // JSON 方法
+        function json_format() {
+          if (!json_text.value) return;
+          try {
+            const json = JSON.parse(json_text.value);
+            json_text.value = JSON.stringify(json, null, 4);
+            ElementPlus.ElMessage.success("正确的json");
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.message);
+          }
         }
-      },
-      created: function () {
-        let now = new Date();
-        this.ts_second = parseInt(now.getTime() / 1000);
-        this.ts_str = this.strftime(now);
-      },
-      methods: {
-        json_format() {
-          if (!this.json_text) {
-            return;
-          }
+
+        function json_compress() {
+          if (!json_text.value) return;
           try {
-            let json = JSON.parse(this.json_text);
-            this.json_text = JSON.stringify(json, null, 4);
-            this.$message.success("正确的json");
+            const json = JSON.parse(json_text.value);
+            json_text.value = JSON.stringify(json);
           } catch (e) {
-            this.$message.error(e.message);
+            ElementPlus.ElMessage.error(e.message);
           }
-        },
-        json_compress() {
-          if (!this.json_text) {
-            return;
-          }
-          try {
-            let json = JSON.parse(this.json_text);
-            this.json_text = JSON.stringify(json);
-          } catch (e) {
-            this.$message.error(e.message);
-          }
-        },
-        strftime(val) {
-          let f = v => v < 10 ? `0${v}` : v.toString();
+        }
+
+        // 时间方法
+        function strftime(val) {
+          const f = v => v < 10 ? `0${v}` : v.toString();
           return `${val.getFullYear()}-${f(val.getMonth() + 1)}-${f(val.getDate())} ${f(val.getHours())}:${f(val.getMinutes())}:${f(val.getSeconds())}`;
-        },
-        second_to_time() {
-          if (!this.ts_second) {
-            this.ts_time = null;
+        }
+
+        function second_to_time() {
+          if (!ts_second.value) {
+            ts_time.value = null;
             return;
           }
-          let value = new Date(this.ts_second * 1000);
+          const value = new Date(ts_second.value * 1000);
           if (isNaN(value.getTime())) {
-            this.ts_time = null;
-            this.$message.error("错误的时间戳");
+            ts_time.value = null;
+            ElementPlus.ElMessage.error("错误的时间戳");
           } else {
-            this.ts_time = this.strftime(value);
+            ts_time.value = strftime(value);
           }
-        },
-        time_to_second() {
-          if (!this.ts_str) {
-            this.ts_value = null;
+        }
+
+        function time_to_second() {
+          if (!ts_str.value) {
+            ts_value.value = null;
             return;
           }
-          let value = new Date(this.ts_str);
+          const value = new Date(ts_str.value);
           if (isNaN(value.getTime())) {
-            this.ts_value = null;
-            this.$message.error("错误的时间");
+            ts_value.value = null;
+            ElementPlus.ElMessage.error("错误的时间");
           } else {
-            this.ts_value = value.getTime() / 1000;
+            ts_value.value = value.getTime() / 1000;
           }
-        },
-        re_match() {
-          if (!this.re_pattern || !this.re_text) {
-            return;
-          }
+        }
+
+        // 正则方法
+        function re_match() {
+          if (!re_pattern.value || !re_text.value) return;
           let flag = "";
-          if (this.re_i) {
-            flag += "i";
-          }
-          if (this.re_g) {
-            flag += "g";
-          }
-          let re = new RegExp(this.re_pattern, flag);
-          let result = this.re_text.match(re);
+          if (re_i.value) flag += "i";
+          if (re_g.value) flag += "g";
+          const re = new RegExp(re_pattern.value, flag);
+          const result = re_text.value.match(re);
           if (!result) {
-            this.re_result = null;
+            re_result.value = null;
           } else {
-            this.re_result = result.join('\n');
+            re_result.value = result.join('\n');
           }
-        },
-        base64_encode() {
-          if (!this.base64_text) {
-            return;
-          }
+        }
+
+        // Base64 方法
+        function base64_encode() {
+          if (!base64_text.value) return;
           try {
-            this.base64_result = btoa(this.base64_text);
+            base64_result.value = btoa(base64_text.value);
           } catch (e) {
-            this.base64_result = null;
-            this.$message.error(e.message);
+            base64_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
           }
-        },
-        base64_decode() {
+        }
+
+        function base64_decode() {
           try {
-            this.base64_result = atob(this.base64_text);
+            base64_result.value = atob(base64_text.value);
           } catch (e) {
-            this.base64_result = null;
-            this.$message.error(e.message);
+            base64_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
           }
-        },
-        url_encode() {
-          if (!this.url_text) {
-            return;
-          }
+        }
+
+        // URL 编解码方法
+        function url_encode() {
+          if (!url_text.value) return;
           try {
-            this.url_result = encodeURIComponent(this.url_text);
+            url_result.value = encodeURIComponent(url_text.value);
           } catch (e) {
-            this.url_result = null;
-            this.$message.error(e.message);
+            url_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
           }
-        },
-        url_decode() {
+        }
+
+        function url_decode() {
           try {
-            this.url_result = decodeURIComponent(this.url_text);
+            url_result.value = decodeURIComponent(url_text.value);
           } catch (e) {
-            this.url_result = null;
-            this.$message.error(e.message);
+            url_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
           }
-        },
-        password_gen() {
+        }
+
+        // Unicode 编解码方法
+        function unicode_encode() {
+          if (!unicode_text.value) return;
+          try {
+            unicode_result.value = unicode_text.value.split('').map(char => {
+              const code = char.charCodeAt(0);
+              return code > 127 ? '\\u' + code.toString(16).padStart(4, '0') : char;
+            }).join('');
+          } catch (e) {
+            unicode_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
+          }
+        }
+
+        function unicode_decode() {
+          if (!unicode_text.value) return;
+          try {
+            unicode_result.value = unicode_text.value.replace(/\\u([\da-fA-F]{4})/g, (match, hex) => {
+              return String.fromCharCode(parseInt(hex, 16));
+            });
+          } catch (e) {
+            unicode_result.value = null;
+            ElementPlus.ElMessage.error(e.message);
+          }
+        }
+
+        // 密码生成方法
+        function password_gen() {
           const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
           let password = "";
-          for (var i = 0; i < this.password_len; i++) {
-            var randomIndex = Math.floor(Math.random() * charset.length);
+          for (let i = 0; i < password_len.value; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
             password += charset[randomIndex];
           }
-          this.password_result = password;
+          password_result.value = password;
         }
+
+        return {
+          // 数据
+          json_text,
+          ts_second,
+          ts_time,
+          ts_str,
+          ts_value,
+          re_pattern,
+          re_g,
+          re_i,
+          re_text,
+          re_result,
+          base64_text,
+          base64_result,
+          url_text,
+          url_result,
+          unicode_text,
+          unicode_result,
+          password_len,
+          password_result,
+          // 方法
+          json_format,
+          json_compress,
+          second_to_time,
+          time_to_second,
+          re_match,
+          base64_encode,
+          base64_decode,
+          url_encode,
+          url_decode,
+          unicode_encode,
+          unicode_decode,
+          password_gen
+        };
       }
-    });
-    app.use(ElementPlus);
-    app.mount('#app');
+    }).use(ElementPlus).mount('#app');
   </script>
 
 </body>

@@ -24,7 +24,7 @@
             <TextBox Text="{Binding Separator}" Width="50"/>
             
             <TextBlock Text="Rule:" VerticalAlignment="Center"/>
-            <TextBox Text="{Binding Rule}" Width="150" Watermark="e.g. New_{0}"/>
+            <TextBox Text="{Binding Rule}" Width="150" PlaceholderText="e.g. New_{0}"/>
             
             <Button Content="Preview" Command="{Binding PreviewCommand}"/>
             <Button Content="Run" Command="{Binding StartCommand}"/>
