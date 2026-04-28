@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 
@@ -12,27 +13,26 @@ import (
 	"github.com/justlovediaodiao/tools/file/up"
 )
 
+func serve(addr string, handler http.Handler) {
+	fmt.Printf("http://%s\n", addr)
+	if err := http.ListenAndServe(addr, handler); err != nil {
+		if opErr, ok := err.(*net.OpError); ok && opErr.Op == "listen" {
+			fmt.Printf("can not listen on %s\n", addr)
+		}
+	}
+}
+
 func lanIP() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return ""
+		return "0.0.0.0"
 	}
-	r := "0.0.0.0"
 	for _, address := range addrs {
-		if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.To4() != nil {
-			if ipnet.IP[12] == 10 { // A
-				ip := ipnet.IP.String()
-				r = ip
-			} else if ipnet.IP[12] == 172 && ipnet.IP[13] >= 16 && ipnet.IP[13] <= 31 { // B
-				ip := ipnet.IP.String()
-				r = ip
-			} else if ipnet.IP[12] == 192 && ipnet.IP[13] == 168 { // C
-				ip := ipnet.IP.String()
-				return ip // use 192.168.x.x first
-			}
+		if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.IsPrivate() {
+			return ipnet.IP.String()
 		}
 	}
-	return r
+	return "0.0.0.0"
 }
 
 type FlagSets map[string]*flag.FlagSet
@@ -91,11 +91,11 @@ func main() {
 
 	switch cmd {
 	case "down":
-		down.Serve(f(listen), dir)
+		serve(f(listen), down.Handler(dir))
 	case "up":
-		up.Serve(f(listen), dir)
+		serve(f(listen), up.Handler(dir))
 	case "text":
-		text.Serve(f(listen))
+		serve(f(listen), text.Handler())
 	default:
 		root.Usage()
 	}
