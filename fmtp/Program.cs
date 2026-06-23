@@ -7,11 +7,11 @@ class Program
     {
         if (args.Length != 2)
         {
-            Console.WriteLine("Usage: <local path> <MTP device path>");
+            Console.WriteLine(@"Usage: <local path> <MTP full path>");
             return;
         }
 
-        var (localDir, mtpDir) = (args[0], args[1]);
+        var (localDir, mtpFullPath) = (args[0], args[1]);
         const string targetDir = "diff";
 
         MediaDevice? device = null;
@@ -23,11 +23,14 @@ class Program
                 return;
             }
 
-            device = MediaDevice.GetDevices().FirstOrDefault();
+            var (deviceName, mtpDir) = ParseMtpFullPath(mtpFullPath);
+
+            device = MediaDevice.GetDevices()
+                .FirstOrDefault(d => string.Equals(d.FriendlyName, deviceName, StringComparison.OrdinalIgnoreCase));
             
             if (device is null)
             {
-                Console.WriteLine("No MTP device found");
+                Console.WriteLine($"MTP device not found: {deviceName}");
                 return;
             }
 
@@ -66,6 +69,19 @@ class Program
         {
             device?.Disconnect();
         }
+    }
+
+    static (string DeviceName, string DevicePath) ParseMtpFullPath(string mtpFullPath)
+    {
+        var parts = mtpFullPath
+            .Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length < 2)
+        {
+            throw new ArgumentException(@"MTP full path must include device name and device directory");
+        }
+
+        return (parts[0], string.Join('\\', parts.Skip(1)));
     }
 
     static void MoveToDiff(string localDir, string targetDir, List<string> filesToMove)

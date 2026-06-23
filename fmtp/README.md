@@ -17,15 +17,11 @@ dotnet publish
 ## Usage
 
 ```
-fmtp.exe <local directory> <mtp device directory>
+fmtp.exe <local directory> <mtp full path>
 ```
 
-## Powershell Version
-
-No dotnet runtime or a self-contained executable (tens of MB). Only a few KB PowerShell script, delivering the same functionality.
-
-**Usage:**
+The MTP path must include the device name as its first segment:
 
 ```
-fmtp.ps1 <local directory> <mtp device directory>
+fmtp.exe C:\Photos "Phone\Internal storage\DCIM"
 ```
