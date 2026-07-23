@@ -8,5 +8,5 @@ Simple useful tools.
 - htmltool: HTML pages for some functions.
 - fmtp: Sync mtp device and local directory.
 - pb: Parse protobuf serialized data without .proto file.
+- ssm: Claude Code and Codex session manager.
 - tunnel: Relay tcp/udp data.
-- wol: Send wake on lan package.
