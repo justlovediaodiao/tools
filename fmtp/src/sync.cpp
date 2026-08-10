@@ -101,8 +101,18 @@ bool RunSync(const fs::path& localDirectory, const std::wstring& mtpFullPath,
         return false;
     }
 
-    const MtpPath mtpPath = ParseMtpFullPath(mtpFullPath);
+    MtpPath mtpPath = ParseMtpFullPath(mtpFullPath);
     std::unique_ptr<MtpDevice> device = MtpDevice::OpenByName(mtpPath.deviceName);
+    if (device == nullptr && mtpPath.segments.size() >= 2) {
+        // Explorer prefixes an MTP path with the localized name of its computer
+        // root. Detect that form by matching the next segment to a real device
+        // instead of depending on the Windows display language.
+        device = MtpDevice::OpenByName(mtpPath.segments.front());
+        if (device != nullptr) {
+            mtpPath.deviceName = mtpPath.segments.front();
+            mtpPath.segments.erase(mtpPath.segments.begin());
+        }
+    }
     if (device == nullptr) {
         reporter.Error(L"MTP device not found: " + mtpPath.deviceName);
         return false;

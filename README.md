@@ -7,6 +7,5 @@ Simple useful tools.
 - file: Start a server to download/upload file or paste text on LAN.
 - htmltool: HTML pages for some functions.
 - fmtp: Sync mtp device and local directory.
-- pb: Parse protobuf serialized data without .proto file.
 - ssm: Claude Code and Codex session manager.
 - tunnel: Relay tcp/udp data.

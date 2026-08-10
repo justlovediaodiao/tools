@@ -18,6 +18,18 @@ cmake --build build --config Release --target fmtp
 fmtp.exe <local directory> <mtp full path>
 ```
 
+The MTP path can start with the device name directly, or be copied from the
+Windows Explorer address bar. For example, both forms below are accepted:
+
+```text
+Phone\Internal storage\DCIM
+This PC\Phone\Internal storage\DCIM
+```
+
+The Explorer prefix is detected from the connected MTP device name, so this
+works with any Windows display language (for example, `此电脑` instead of
+`This PC`).
+
 ### Programmatic output
 
 Use `-p` to output UTF-8 JSON Lines. Each line is flushed immediately and can
