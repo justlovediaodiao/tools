@@ -1,0 +1,193 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:filerename.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
+        x:Class="filerename.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="avares://filerename/Assets/avalonia-logo.ico"
+        Title="File Rename"
+        MinWidth="700"
+        MinHeight="400">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Border Padding="16" Background="Transparent">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!-- Toolbar -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16"
+                    Margin="0,0,0,12"
+                    BoxShadow="0 2 8 0 #1A000000">
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Add Files"
+                                Command="{Binding AddFilesCommand}"
+                                CommandParameter="{Binding $parent[Window].StorageProvider}"
+                                Classes="Accent"/>
+                        <Button Content="Add Folder"
+                                Command="{Binding AddFolderCommand}"
+                                CommandParameter="{Binding $parent[Window].StorageProvider}"/>
+                        <Button Content="Remove Files"
+                                Command="{Binding RemoveSelectedCommand}"/>
+                    </StackPanel>
+
+                    <!-- Separator & Rule Input -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" Margin="24,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Separator" VerticalAlignment="Center" Opacity="0.8" FontWeight="SemiBold"/>
+                            <TextBox Text="{Binding Separator}" Width="60" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Rule" VerticalAlignment="Center" Opacity="0.8" FontWeight="SemiBold"/>
+                            <TextBox Text="{Binding Rule}" Width="180" PlaceholderText="e.g. New_{0}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Preview & Run Buttons -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Preview"
+                                Command="{Binding PreviewCommand}"
+                                Background="#E65100"
+                                Foreground="White">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#BF3600"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#A02E00"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                        <Button Content="Run"
+                                Command="{Binding StartCommand}"
+                                Background="#4CAF50"
+                                Foreground="White">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#388E3C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#2E7D32"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- File List -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="1"
+                    BoxShadow="0 2 8 0 #1A000000">
+                <DataGrid Name="FileGrid"
+                          ItemsSource="{Binding Files}"
+                          AutoGenerateColumns="False"
+                          CanUserResizeColumns="True"
+                          GridLinesVisibility="Horizontal"
+                          BorderThickness="0"
+                          RowHeight="40"
+                          CanUserReorderColumns="True"
+                          CanUserSortColumns="True">
+                    <DataGrid.Styles>
+                        <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+                            <Setter Property="Fill" Value="#FFE8F0F5"/>
+                        </Style>
+                        <Style Selector="DataGridRow:selected:pointerover /template/ Rectangle#BackgroundRectangle">
+                            <Setter Property="Fill" Value="#FFDDE8F0"/>
+                        </Style>
+                    </DataGrid.Styles>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Select" Width="Auto" MinWidth="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsChecked}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <CheckBox.Styles>
+                                            <Style Selector="CheckBox">
+                                                <Style Selector="^ /template/ Border#PART_BorderElement">
+                                                    <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+                                                </Style>
+                                                <Style Selector="^:checked /template/ Border#PART_BorderElement">
+                                                    <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+                                                </Style>
+                                                <Style Selector="^:unchecked /template/ Border#PART_BorderElement">
+                                                    <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+                                                </Style>
+                                            </Style>
+                                        </CheckBox.Styles>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Original Name"
+                                            Binding="{Binding OriginalName}"
+                                            Width="2*"
+                                            IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Status"
+                                            Binding="{Binding Status}"
+                                            Width="100"
+                                            IsReadOnly="True"/>
+                        <DataGridTextColumn Header="New Name"
+                                            Binding="{Binding NewName}"
+                                            Width="2*"
+                                            IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Bottom Bar -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16"
+                    Margin="0,12,0,0"
+                    BoxShadow="0 2 8 0 #1A000000">
+                <Grid ColumnDefinitions="Auto, *">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Select All" Command="{Binding SelectAllCommand}"/>
+                    </StackPanel>
+                    <Border Grid.Column="1"
+                            Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                            CornerRadius="6"
+                            Padding="12,8"
+                            Margin="16,0,0,0">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding SplitPreviewParts}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Text}"
+                                                   Foreground="{Binding Foreground}"
+                                                   VerticalAlignment="Center"
+                                                   FontFamily="Consolas, Monaco, monospace"
+                                                   FontSize="13"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

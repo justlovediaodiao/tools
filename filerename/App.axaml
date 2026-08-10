@@ -1,0 +1,91 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="filerename.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#FF0078D4" AltHigh="#FFF2F2F2" AltLow="#FFF2F2F2" AltMedium="#FFF2F2F2" AltMediumHigh="#FFF2F2F2" AltMediumLow="#FFF2F2F2" BaseHigh="#FF000000" BaseLow="#FFC2C2C2" BaseMedium="#FF898989" BaseMediumHigh="#FF5D5D5D" BaseMediumLow="#FF737373" ChromeAltLow="#FF5D5D5D" ChromeBlackHigh="#FF000000" ChromeBlackLow="#FFC2C2C2" ChromeBlackMedium="#FF5D5D5D" ChromeBlackMediumLow="#FF898989" ChromeDisabledHigh="#FFC2C2C2" ChromeDisabledLow="#FF898989" ChromeGray="#FF737373" ChromeHigh="#FFC2C2C2" ChromeLow="#FFF2F2F2" ChromeMedium="#FFF2F2F2" ChromeMediumLow="#FFF2F2F2" ChromeWhite="#FFFFFFFF" ListLow="#FFF2F2F2" ListMedium="#FFC2C2C2" RegionColor="#FFF2F2F2" />
+                <ColorPaletteResources x:Key="Dark" Accent="#FF0078D4" AltHigh="#FF1A1A1A" AltLow="#FF1A1A1A" AltMedium="#FF1A1A1A" AltMediumHigh="#FF1A1A1A" AltMediumLow="#FF1A1A1A" BaseHigh="#FFFFFFFF" BaseLow="#FF2B2B2B" BaseMedium="#FF9B9B9B" BaseMediumHigh="#FFB3B3B3" BaseMediumLow="#FF7A7A7A" ChromeAltLow="#FFB3B3B3" ChromeBlackHigh="#FF000000" ChromeBlackLow="#FF2B2B2B" ChromeBlackMedium="#FF1A1A1A" ChromeBlackMediumLow="#FF5D5D5D" ChromeDisabledHigh="#FF2B2B2B" ChromeDisabledLow="#FF9B9B9B" ChromeGray="#FF5D5D5D" ChromeHigh="#FF2B2B2B" ChromeLow="#FF171717" ChromeMedium="#FF1A1A1A" ChromeMediumLow="#FF2B2B2B" ChromeWhite="#FFFFFFFF" ListLow="#FF1A1A1A" ListMedium="#FF2B2B2B" RegionColor="#FF1A1A1A" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+
+        <!-- Card Background Brush -->
+        <Style>
+            <Style.Resources>
+                <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="{DynamicResource RegionColor}" Opacity="0.95" />
+                <SolidColorBrush x:Key="ControlFillColorSecondaryBrush" Color="{DynamicResource BaseLow}" Opacity="0.4" />
+            </Style.Resources>
+        </Style>
+
+        <!-- Button Styles -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- TextBox Styles -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style Selector="TextBox:focus-within">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <!-- DataGrid Styles -->
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeight" Value="40"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource BaseLow}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BaseHigh}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.9"/>
+        </Style>
+
+        <Style Selector="DataGridRow">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="DataGridRow:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BaseLow}"/>
+        </Style>
+
+        <Style Selector="DataGridCell">
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style Selector="DataGridCell:selected">
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+
+        <Style Selector="DataGridCell /template/ Grid#FocusVisual">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+
+        <!-- TextBlock Styles -->
+        <Style Selector="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Application.Styles>
+</Application>
