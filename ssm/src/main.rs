@@ -55,7 +55,13 @@ impl App {
     }
 
     fn reload(&mut self) {
-        self.sessions = load_sessions().unwrap_or_default();
+        self.sessions = match load_sessions() {
+            Ok(sessions) => sessions,
+            Err(error) => {
+                self.status = format!("Load failed: {error}");
+                vec![]
+            }
+        };
         self.filtered = self
             .sessions
             .iter()
@@ -72,7 +78,7 @@ impl App {
         self.state
             .select((!self.filtered.is_empty()).then_some(selected));
 
-        if self.filtered.is_empty() {
+        if self.filtered.is_empty() && !self.status.starts_with("Load failed:") {
             self.status.clear();
         }
     }
