@@ -68,7 +68,7 @@ impl App {
             .sessions
             .iter()
             .enumerate()
-            .filter(|(_, session)| self.show_all || session.cwd == self.current_cwd)
+            .filter(|(_, session)| self.show_all || same_cwd(&session.cwd, &self.current_cwd))
             .map(|(index, _)| index)
             .collect();
 
@@ -344,8 +344,27 @@ impl App {
     }
 }
 
+fn same_cwd(left: &str, right: &str) -> bool {
+    #[cfg(windows)]
+    {
+        let prefix = r"\\?\";
+        left.strip_prefix(prefix)
+            .unwrap_or(left)
+            .eq_ignore_ascii_case(right.strip_prefix(prefix).unwrap_or(right))
+    }
+    #[cfg(not(windows))]
+    {
+        left == right
+    }
+}
+
 fn find_database() -> Option<PathBuf> {
-    let codex_dir = PathBuf::from(env::var_os("HOME")?).join(".codex");
+    #[cfg(windows)]
+    let home_dir = env::var_os("USERPROFILE")?;
+    #[cfg(not(windows))]
+    let home_dir = env::var_os("HOME")?;
+
+    let codex_dir = PathBuf::from(home_dir).join(".codex");
     fs::read_dir(codex_dir)
         .ok()?
         .flatten()

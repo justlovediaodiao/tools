@@ -20,6 +20,13 @@ from textual.widgets import Static
 UNKNOWN_TITLE = "<unknown>"
 
 
+def same_cwd(left: str, right: str) -> bool:
+    if os.name == "nt":
+        prefix = "\\\\?\\"
+        return left.removeprefix(prefix).lower() == right.removeprefix(prefix).lower()
+    return left == right
+
+
 @dataclass
 class SessionEntry:
     session_id: str
@@ -255,7 +262,7 @@ class SessionManagerApp(App[None]):
         if self.show_all:
             self.filtered = list(self.sessions)
         else:
-            self.filtered = [item for item in self.sessions if item.cwd == self.current_cwd]
+            self.filtered = [item for item in self.sessions if same_cwd(item.cwd, self.current_cwd)]
 
         self.selected_index = min(self.selected_index, max(len(self.filtered) - 1, 0))
 
