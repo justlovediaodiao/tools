@@ -9,7 +9,7 @@ license = "MIT"
 chrono = "0.4"
 crossterm = "0.29"
 ratatui = "0.30.2"
-rusqlite = "0.40"
+rusqlite = { version = "0.40", features = ["bundled"] }
 unicode-width = "0.2"
 
 [profile.release]
