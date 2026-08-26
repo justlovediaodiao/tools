@@ -1,13 +1,11 @@
 # ssm
 
-A Claude Code and Codex session manager built with Ratatui. It is a Rust
-rewrite of `ssm.py`.
+A Codex session manager built with Ratatui. It is a Rust rewrite of `ssm.py`.
 
 ## Usage
 
 ```text
-ssm claude
-ssm codex
+ssm
 ```
 
 - `Ctrl+A`: Switch between the current directory and all projects
