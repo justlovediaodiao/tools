@@ -1,29 +1,28 @@
-﻿if (args.Length != 3)
+if (args is not [var inputFile, var offsetValue, var outputFile])
 {
-    Console.WriteLine("Usage: Ass <file> <millisecond>");
+    Console.Error.WriteLine("Usage: ass <input.ass> <milliseconds> <output.ass>");
     return;
 }
 
-var file = args[1];
-if (!File.Exists(file))
+if (!File.Exists(inputFile))
 {
-    Console.WriteLine($"file {file} not found");
+    Console.Error.WriteLine($"Input file not found: {inputFile}");
     return;
 }
 
-if (!int.TryParse(args[2], out var millisecond))
+if (!int.TryParse(offsetValue, out var milliseconds))
 {
-    Console.WriteLine("millisecond must be an integer");
+    Console.Error.WriteLine("Milliseconds must be an integer.");
     return;
 }
 
-var ass = new Ass.Ass(file);
-if (millisecond > 0)
+try
 {
-    ass.Delay(millisecond);
+    var subtitle = new Ass.Ass(inputFile);
+    subtitle.Adjust(milliseconds);
+    subtitle.Save(outputFile);
 }
-else
+catch (Exception exception)
 {
-    ass.Hurry(millisecond);
+    Console.Error.WriteLine(exception.Message);
 }
-ass.Save();

@@ -1,17 +1,17 @@
-# Ass
+# ASS Timeline Adjuster
 
-Ass is a tool for adjusting timeline of ass subtitle files.
+A command-line tool for adjusting ASS subtitle timelines.
 
-### Build
+## Build
 
 ```
 dotnet publish
 ```
 
-### Usage
+## Usage
 
 ```
-Ass.exe <file> <millisecond>
+ass <input.ass> <milliseconds> <output.ass>
 ```
 
-`millisecond` can be negative. The adjusted subtitle files are named as `*_fix.*`
+Positive offsets delay subtitles; negative offsets move them earlier.

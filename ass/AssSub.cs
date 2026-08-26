@@ -1,41 +1,50 @@
-﻿namespace Ass;
+using System.Text;
 
-public class Ass(string file)
+namespace Ass;
+
+public class Ass
 {
-    private readonly string _file = file;
-    private string[] _lines = File.ReadAllLines(file);
+    private readonly Encoding _encoding;
+    private readonly string[] _lines;
 
-    private void Timeline(int millisecond, int start, int end)
+    public Ass(string file)
+    {
+        using var reader = new StreamReader(file, true);
+        List<string> lines = [];
+        while (reader.ReadLine() is { } line)
+            lines.Add(line);
+
+        _encoding = reader.CurrentEncoding;
+        _lines = [.. lines];
+    }
+
+    public void Adjust(int milliseconds)
     {
         var (startCol, endCol, index) = EventsLine();
-        for (int i = index; i < _lines.Length; i++)
+        for (var i = index; i < _lines.Length; i++)
         {
-            if (_lines[i].StartsWith("Dialogue:"))
+            if (_lines[i].StartsWith("Dialogue:", StringComparison.Ordinal))
             {
-                //starttime
+                // start time
                 var (time, startIndex, endIndex) = GetTime(_lines[i], startCol);
-                //is time between the start and end time
-                if (start > 0 && time < start)
-                    continue;
-                if (end > 0 && time >= end)
-                    continue;
-                time += millisecond;
-                _lines[i] = _lines[i][..startIndex] + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i][(endIndex + 1)..];
-                //endtime
+                time += milliseconds;
+                _lines[i] = _lines[i][..startIndex] + FormatTime(time) + _lines[i][(endIndex + 1)..];
+
+                // end time
                 (time, startIndex, endIndex) = GetTime(_lines[i], endCol);
-                time += millisecond;
-                _lines[i] = _lines[i][..startIndex] + new TimeSpan(0, 0, 0, 0, time).ToString(@"h\:mm\:ss\.ff") + _lines[i][(endIndex + 1)..];
+                time += milliseconds;
+                _lines[i] = _lines[i][..startIndex] + FormatTime(time) + _lines[i][(endIndex + 1)..];
             }
         }
     }
 
     private (int StartCol, int EndCol, int Index) EventsLine()
     {
-        //find the events and format line
+        // find the events and format line
         var number = -1;
-        for (int i = 0; i < _lines.Length; i++)
+        for (var i = 0; i < _lines.Length; i++)
         {
-            if (_lines[i].StartsWith("[Events]"))
+            if (_lines[i].StartsWith("[Events]", StringComparison.Ordinal))
             {
                 number = i;
                 break;
@@ -43,13 +52,14 @@ public class Ass(string file)
         }
         if (number == -1)
             throw new FormatException("[Events] section not found");
-        if (number == _lines.Length - 1 || !_lines[number + 1].StartsWith("Format:"))
+        if (number == _lines.Length - 1 || !_lines[number + 1].StartsWith("Format:", StringComparison.Ordinal))
             throw new FormatException("Format tag not found");
-        //find the start and end column
+
+        // find the start and end column
         var columns = _lines[number + 1].Split([':', ','], StringSplitOptions.RemoveEmptyEntries);
         var start = -1;
         var end = -1;
-        for (int i = 1; i < columns.Length; i++)
+        for (var i = 1; i < columns.Length; i++)
         {
             if (columns[i].Trim() == "Start")
                 start = i - 1;
@@ -68,10 +78,10 @@ public class Ass(string file)
         if (colIndex == 0)
         {
             start = line.IndexOf(':') + 1;
-            while (line[start] == ' ')
+            while (start < line.Length && line[start] == ' ')
                 ++start;
         }
-        for (int i = 0; i < line.Length; i++)
+        for (var i = 0; i < line.Length; i++)
         {
             if (line[i] == ',')
             {
@@ -80,10 +90,9 @@ public class Ass(string file)
                     end = i - 1;
                     break;
                 }
-                else
+                else if (--colIndex == 0)
                 {
-                    if (--colIndex == 0)
-                        start = i + 1;
+                    start = i + 1;
                 }
             }
         }
@@ -94,15 +103,13 @@ public class Ass(string file)
         return (time, start, end);
     }
 
-    public void Delay(int millisecond) => Timeline(millisecond, 0, 0);
-
-    public void Hurry(int millisecond) => Timeline(-millisecond, 0, 0);
-
-    public void Save()
+    private static string FormatTime(int milliseconds)
     {
-        var name = Path.GetFileNameWithoutExtension(_file);
-        var ext = Path.GetExtension(_file);
-        var filename = Path.Combine(Path.GetDirectoryName(_file) ?? "", $"{name}_fix{ext}");
-        File.WriteAllLines(filename, _lines);
+        if (milliseconds < 0)
+            throw new InvalidOperationException("The adjusted time cause negative timeline");
+
+        return TimeSpan.FromMilliseconds(milliseconds).ToString(@"h\:mm\:ss\.ff");
     }
+
+    public void Save(string outputFile) => File.WriteAllLines(outputFile, _lines, _encoding);
 }
