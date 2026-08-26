@@ -31,6 +31,7 @@ struct SessionEntry {
 }
 
 struct App {
+    database: Option<PathBuf>,
     current_cwd: String,
     show_all: bool,
     sessions: Vec<SessionEntry>,
@@ -43,6 +44,7 @@ impl App {
     fn new() -> io::Result<Self> {
         let current_cwd = env::current_dir()?.to_string_lossy().into_owned();
         let mut app = Self {
+            database: find_database(),
             current_cwd,
             show_all: false,
             sessions: vec![],
@@ -55,7 +57,7 @@ impl App {
     }
 
     fn reload(&mut self) {
-        self.sessions = match load_sessions() {
+        self.sessions = match load_sessions(self.database.as_deref()) {
             Ok(sessions) => sessions,
             Err(error) => {
                 self.status = format!("Load failed: {error}");
@@ -77,10 +79,6 @@ impl App {
             .min(self.filtered.len().saturating_sub(1));
         self.state
             .select((!self.filtered.is_empty()).then_some(selected));
-
-        if self.filtered.is_empty() && !self.status.starts_with("Load failed:") {
-            self.status.clear();
-        }
     }
 
     fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
@@ -103,7 +101,9 @@ impl App {
                     self.state.select(Some(0));
                     self.reload();
                 }
-                (KeyCode::Char('z'), KeyModifiers::CONTROL) => self.delete_invalid(),
+                (KeyCode::Char('z'), KeyModifiers::CONTROL) if self.show_all => {
+                    self.delete_invalid()
+                }
                 (KeyCode::Up, _) => self.select_previous(),
                 (KeyCode::Down, _) => self.select_next(),
                 (KeyCode::Enter, _) if !self.filtered.is_empty() => self.delete_selected(),
@@ -151,11 +151,6 @@ impl App {
     }
 
     fn delete_invalid(&mut self) {
-        if !self.show_all {
-            self.status = "Available only in all-projects view".into();
-            return;
-        }
-
         let invalid: Vec<_> = self
             .sessions
             .iter()
@@ -230,7 +225,7 @@ impl App {
             }),
         );
 
-        let width = body.width.saturating_sub(6) as usize;
+        let width = (body.width.saturating_sub(6) as usize).max(16);
         let selected = self.state.selected();
         let items = if self.filtered.is_empty() {
             vec![ListItem::new(Line::styled(
@@ -322,6 +317,9 @@ impl App {
 
     fn shorten(text: &str, width: usize) -> String {
         let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
+        if width <= 1 {
+            return text.chars().take(width).collect();
+        }
         if text.width() <= width {
             return text;
         }
@@ -366,8 +364,8 @@ fn find_database() -> Option<PathBuf> {
         .map(|(_, path)| path)
 }
 
-fn load_sessions() -> rusqlite::Result<Vec<SessionEntry>> {
-    let Some(database) = find_database() else {
+fn load_sessions(database: Option<&Path>) -> rusqlite::Result<Vec<SessionEntry>> {
+    let Some(database) = database else {
         return Ok(vec![]);
     };
     let connection = Connection::open_with_flags(database, OpenFlags::SQLITE_OPEN_READ_ONLY)?;

@@ -33,6 +33,9 @@ class SessionEntry:
 class CodexSessionStore:
     label = "Codex"
 
+    def __init__(self) -> None:
+        self.database = self.find_database()
+
     def find_database(self) -> Path | None:
         codex_dir = Path.home() / ".codex"
         databases: list[tuple[int, Path]] = []
@@ -43,8 +46,7 @@ class CodexSessionStore:
         return max(databases, default=(0, None), key=lambda item: item[0])[1]
 
     def load_sessions(self) -> list[SessionEntry]:
-        database = self.find_database()
-        if database is None:
+        if self.database is None:
             return []
 
         sessions: list[SessionEntry] = []
@@ -65,14 +67,13 @@ class CodexSessionStore:
             ORDER BY activity_time DESC
         """
 
+        connection = sqlite3.connect(f"{self.database.as_uri()}?mode=ro", uri=True)
         try:
-            connection = sqlite3.connect(f"{database.as_uri()}?mode=ro", uri=True)
             connection.row_factory = sqlite3.Row
             with connection:
                 rows = connection.execute(query, (UNKNOWN_TITLE,)).fetchall()
+        finally:
             connection.close()
-        except sqlite3.Error:
-            return []
 
         for row in rows:
             session_file = Path(row["rollout_path"])
@@ -245,22 +246,18 @@ class SessionManagerApp(App[None]):
     def on_mount(self) -> None:
         self.refresh_sessions()
 
-    def refresh_sessions(self, keep_session_id: str | None = None) -> None:
-        self.sessions = self.store.load_sessions()
+    def refresh_sessions(self) -> None:
+        try:
+            self.sessions = self.store.load_sessions()
+        except sqlite3.Error as error:
+            self.sessions = []
+            self.set_status(f"Load failed: {error}")
         if self.show_all:
             self.filtered = list(self.sessions)
         else:
             self.filtered = [item for item in self.sessions if item.cwd == self.current_cwd]
 
-        if keep_session_id:
-            for idx, entry in enumerate(self.filtered):
-                if entry.session_id == keep_session_id:
-                    self.selected_index = idx
-                    break
-            else:
-                self.selected_index = min(self.selected_index, max(len(self.filtered) - 1, 0))
-        else:
-            self.selected_index = min(self.selected_index, max(len(self.filtered) - 1, 0))
+        self.selected_index = min(self.selected_index, max(len(self.filtered) - 1, 0))
 
         self.render_rows()
         self.refresh_scope()
@@ -270,8 +267,6 @@ class SessionManagerApp(App[None]):
         session_list = self.query_one("#list", SessionList)
         session_list.entries = list(self.filtered)
         session_list.selected_index = self.selected_index
-        if not self.filtered:
-            self.query_one("#status", Static).update("")
 
     def refresh_scope(self) -> None:
         scope = "All Projects" if self.show_all else self.current_cwd
@@ -316,22 +311,32 @@ class SessionManagerApp(App[None]):
         if not self.filtered:
             return
         entry = self.filtered[self.selected_index]
-        self.store.delete_session(entry)
-        self.set_status(f"Deleted {entry.session_id}")
+        try:
+            self.store.delete_session(entry)
+        except OSError as error:
+            self.set_status(f"Delete failed: {error}")
+        else:
+            self.set_status(f"Deleted {entry.session_id}")
         self.refresh_sessions()
 
     def action_delete_invalid(self) -> None:
-        if not self.show_all:
-            self.set_status("Available only in all-projects view")
-            return
+        if self.show_all:
+            self.delete_invalid()
 
+    def delete_invalid(self) -> None:
         invalid_entries = [entry for entry in self.sessions if not entry.is_valid]
         if not invalid_entries:
             self.set_status("No invalid sessions")
             return
 
-        for entry in invalid_entries:
-            self.store.delete_session(entry)
+        try:
+            for entry in invalid_entries:
+                self.store.delete_session(entry)
+        except OSError as error:
+            self.selected_index = 0
+            self.refresh_sessions()
+            self.set_status(f"Delete failed: {error}")
+            return
 
         self.selected_index = 0
         self.refresh_sessions()
