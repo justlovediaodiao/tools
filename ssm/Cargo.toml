@@ -2,7 +2,7 @@
 name = "ssm"
 version = "0.1.0"
 edition = "2024"
-description = "A Ratatui session manager for Codex"
+description = "A Ratatui session manager for Codex and DeepSeek Harness"
 license = "MIT"
 
 [dependencies]
@@ -10,7 +10,10 @@ chrono = "0.4"
 crossterm = "0.29"
 ratatui = "0.30.2"
 rusqlite = { version = "0.40", features = ["bundled"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tempfile = "3"
 unicode-width = "0.2"
+zstd = "0.13"
 
 [profile.release]
 lto = true

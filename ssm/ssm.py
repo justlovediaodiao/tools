@@ -25,13 +25,6 @@ import zstandard
 UNKNOWN_TITLE = "<unknown>"
 
 
-def same_cwd(left: str, right: str) -> bool:
-    if os.name == "nt":
-        prefix = "\\\\?\\"
-        return left.removeprefix(prefix).lower() == right.removeprefix(prefix).lower()
-    return left == right
-
-
 @dataclass
 class SessionEntry:
     session_id: str
@@ -55,6 +48,13 @@ class CodexSessionStore:
 
     def __init__(self) -> None:
         self.database = self.find_database()
+
+    @staticmethod
+    def normalize_cwd(cwd: str) -> str:
+        if os.name == "nt":
+            prefix = "\\\\?\\"
+            return cwd.removeprefix(prefix)
+        return cwd
 
     def find_database(self) -> Path | None:
         codex_dir = Path.home() / ".codex"
@@ -101,7 +101,7 @@ class CodexSessionStore:
             if not session_file.is_file() or "subagent" in source:
                 continue
 
-            cwd = row["cwd"] or ""
+            cwd = self.normalize_cwd(row["cwd"])
             sessions.append(
                 SessionEntry(
                     session_id=row["id"],
@@ -391,7 +391,12 @@ class SessionManagerApp(App[None]):
         if self.show_all:
             self.filtered = list(self.sessions)
         else:
-            self.filtered = [item for item in self.sessions if same_cwd(item.cwd, self.current_cwd)]
+            current_cwd = os.path.normcase(self.current_cwd)
+            self.filtered = [
+                item
+                for item in self.sessions
+                if os.path.normcase(item.cwd) == current_cwd
+            ]
 
         self.selected_index = min(self.selected_index, max(len(self.filtered) - 1, 0))
 

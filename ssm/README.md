@@ -1,11 +1,11 @@
 # ssm
 
-A Codex session manager built with Ratatui. It is a Rust rewrite of `ssm.py`.
+A Codex and DeepSeek Harness session manager built with Ratatui. It is a Rust rewrite of `ssm.py`.
 
 ## Usage
 
 ```text
-ssm
+ssm <codex|dsh>
 ```
 
 - `Ctrl+A`: Switch between the current directory and all projects

@@ -1,12 +1,9 @@
-use std::{
-    env,
-    fs,
-    io,
-    path::{Path, PathBuf},
-    time::Duration,
-};
+mod codex;
+mod dsh;
+mod store;
 
-use chrono::{DateTime, Local, Utc};
+use std::{env, io, time::Duration};
+
 use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     DefaultTerminal, Frame,
@@ -15,23 +12,14 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, List, ListItem, ListState, Paragraph},
 };
-use rusqlite::{Connection, OpenFlags};
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
-const UNKNOWN_TITLE: &str = "<unknown>";
-
-#[derive(Clone, Debug)]
-struct SessionEntry {
-    session_id: String,
-    session_file: PathBuf,
-    cwd: String,
-    title: String,
-    timestamp: DateTime<Local>,
-    is_valid: bool,
-}
+use codex::CodexSessionStore;
+use dsh::DshSessionStore;
+use store::{SessionEntry, SessionStore, StoreResult};
 
 struct App {
-    database: Option<PathBuf>,
+    store: Box<dyn SessionStore>,
     current_cwd: String,
     show_all: bool,
     sessions: Vec<SessionEntry>,
@@ -41,10 +29,10 @@ struct App {
 }
 
 impl App {
-    fn new() -> io::Result<Self> {
+    fn new(store: Box<dyn SessionStore>) -> io::Result<Self> {
         let current_cwd = env::current_dir()?.to_string_lossy().into_owned();
         let mut app = Self {
-            database: find_database(),
+            store,
             current_cwd,
             show_all: false,
             sessions: vec![],
@@ -57,18 +45,19 @@ impl App {
     }
 
     fn reload(&mut self) {
-        self.sessions = match load_sessions(self.database.as_deref()) {
+        self.sessions = match self.store.load_sessions() {
             Ok(sessions) => sessions,
             Err(error) => {
                 self.status = format!("Load failed: {error}");
                 vec![]
             }
         };
+        let current_cwd = normcase(&self.current_cwd);
         self.filtered = self
             .sessions
             .iter()
             .enumerate()
-            .filter(|(_, session)| self.show_all || same_cwd(&session.cwd, &self.current_cwd))
+            .filter(|(_, session)| self.show_all || normcase(&session.cwd) == current_cwd)
             .map(|(index, _)| index)
             .collect();
 
@@ -143,7 +132,9 @@ impl App {
 
         if let Some(entry) = entry {
             let id = entry.session_id.clone();
-            self.status = delete_session(&entry)
+            self.status = self
+                .store
+                .delete_session(&entry)
                 .map(|_| format!("Deleted {id}"))
                 .unwrap_or_else(|error| format!("Delete failed: {error}"));
             self.reload();
@@ -163,7 +154,9 @@ impl App {
         }
 
         let count = invalid.len();
-        let result = invalid.iter().try_for_each(delete_session);
+        let result = invalid
+            .iter()
+            .try_for_each(|entry| self.store.delete_session(entry));
         self.state.select(Some(0));
         self.reload();
         self.status = result
@@ -205,7 +198,7 @@ impl App {
         };
         let title = vec![
             Line::styled(
-                "Codex Session Manager",
+                format!("{} Session Manager", self.store.label()),
                 Style::default()
                     .fg(Color::Rgb(239, 242, 246))
                     .add_modifier(Modifier::BOLD),
@@ -344,133 +337,32 @@ impl App {
     }
 }
 
-fn same_cwd(left: &str, right: &str) -> bool {
+fn normcase(path: &str) -> String {
     #[cfg(windows)]
     {
-        let prefix = r"\\?\";
-        left.strip_prefix(prefix)
-            .unwrap_or(left)
-            .eq_ignore_ascii_case(right.strip_prefix(prefix).unwrap_or(right))
+        path.replace('/', "\\").to_lowercase()
     }
     #[cfg(not(windows))]
     {
-        left == right
+        path.to_owned()
     }
 }
 
-fn find_database() -> Option<PathBuf> {
-    #[cfg(windows)]
-    let home_dir = env::var_os("USERPROFILE")?;
-    #[cfg(not(windows))]
-    let home_dir = env::var_os("HOME")?;
-
-    let codex_dir = PathBuf::from(home_dir).join(".codex");
-    fs::read_dir(codex_dir)
-        .ok()?
-        .flatten()
-        .filter_map(|entry| {
-            let path = entry.path();
-            let version = path
-                .file_name()?
-                .to_str()?
-                .strip_prefix("state_")?
-                .strip_suffix(".sqlite")?
-                .parse::<u64>()
-                .ok()?;
-            Some((version, path))
-        })
-        .max_by_key(|(version, _)| *version)
-        .map(|(_, path)| path)
-}
-
-fn load_sessions(database: Option<&Path>) -> rusqlite::Result<Vec<SessionEntry>> {
-    let Some(database) = database else {
-        return Ok(vec![]);
-    };
-    let connection = Connection::open_with_flags(database, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-    let mut statement = connection.prepare(
-        "
-        SELECT
-            id,
-            rollout_path,
-            cwd,
-            COALESCE(NULLIF(name, ''), NULLIF(title, ''),
-                     NULLIF(first_user_message, ''), ?) AS display_title,
-            CASE
-                WHEN COALESCE(updated_at_ms, 0) > 0 THEN updated_at_ms / 1000.0
-                ELSE updated_at
-            END AS activity_time,
-            source
-        FROM threads
-        WHERE archived = 0
-        ORDER BY activity_time DESC
-        ",
-    )?;
-
-    let rows = statement.query_map(rusqlite::params![UNKNOWN_TITLE], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            PathBuf::from(row.get::<_, String>(1)?),
-            row.get::<_, String>(2)?,
-            row.get::<_, String>(3)?,
-            row.get::<_, f64>(4)?,
-            row.get::<_, String>(5)?,
-        ))
-    })?;
-
-    let mut sessions = vec![];
-    for row in rows {
-        let (session_id, session_file, cwd, title, activity_time, source) = row?;
-        if !session_file.is_file() || source.to_lowercase().contains("subagent") {
-            continue;
+fn main() -> StoreResult<()> {
+    let arguments: Vec<_> = env::args().collect();
+    let store: Box<dyn SessionStore> = match arguments.as_slice() {
+        [_, mode] if mode == "codex" => Box::new(CodexSessionStore::new()),
+        [_, mode] if mode == "dsh" => Box::new(DshSessionStore::new(None)),
+        [program, ..] => {
+            println!("Usage: {program} <codex|dsh>");
+            return Ok(());
         }
+        [] => unreachable!(),
+    };
 
-        let seconds = activity_time.trunc() as i64;
-        let nanoseconds = (activity_time.fract() * 1_000_000_000.0) as u32;
-        let Some(timestamp) = DateTime::<Utc>::from_timestamp(seconds, nanoseconds)
-            .map(|timestamp| timestamp.with_timezone(&Local))
-        else {
-            continue;
-        };
-        let is_valid = Path::new(&cwd).exists();
-        sessions.push(SessionEntry {
-            session_id,
-            session_file,
-            cwd,
-            title,
-            timestamp,
-            is_valid,
-        });
-    }
-    Ok(sessions)
-}
-
-fn delete_session(entry: &SessionEntry) -> io::Result<()> {
-    match fs::remove_file(&entry.session_file) {
-        Ok(()) => Ok(()),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(error),
-    }
-}
-
-fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
-    let result = App::new().and_then(|mut app| app.run(&mut terminal));
+    let result = App::new(store).and_then(|mut app| app.run(&mut terminal));
     ratatui::restore();
-    result
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn shortens_unicode_by_cells() {
-        assert_eq!(App::shorten("😀😃😄😁", 7), "😀😃...");
-    }
-
-    #[test]
-    fn normalizes_whitespace_when_shortening() {
-        assert_eq!(App::shorten(" a\n b ", 10), "a b");
-    }
+    result?;
+    Ok(())
 }
