@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import io
+import json
 import os
 import re
 import sqlite3
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Protocol
 
 from rich.cells import cell_len, set_cell_size
 from rich.text import Text
@@ -15,6 +19,7 @@ from textual.binding import Binding
 from textual.containers import Container
 from textual.reactive import reactive
 from textual.widgets import Static
+import zstandard
 
 
 UNKNOWN_TITLE = "<unknown>"
@@ -35,6 +40,14 @@ class SessionEntry:
     title: str
     timestamp: datetime
     is_valid: bool
+
+
+class SessionStore(Protocol):
+    label: str
+
+    def load_sessions(self) -> list[SessionEntry]: ...
+
+    def delete_session(self, entry: SessionEntry) -> None: ...
 
 
 class CodexSessionStore:
@@ -104,6 +117,122 @@ class CodexSessionStore:
 
     def delete_session(self, entry: SessionEntry) -> None:
         entry.session_file.unlink(missing_ok=True)
+
+
+class DshSessionStore:
+    label = "DeepSeek Harness"
+
+    def __init__(self, dsh_dir: Path | None = None) -> None:
+        self.dsh_dir = dsh_dir or Path.home() / ".dsh"
+        self.workspace_file = self.dsh_dir / "storages" / "workspace.json"
+
+    @staticmethod
+    def _project_key(cwd: str) -> str:
+        readable = re.sub(r"[/\\:]+", "-", cwd)
+        key = "".join(
+            character
+            if character != "~" and re.fullmatch(r"[A-Za-z0-9._-]", character)
+            else f"~{ord(character):04X}"
+            for character in readable
+        ).lstrip("-") or "root"
+        return f"--{key[:251]}--"
+
+    def _session_file(self, session_id: str, cwd: str) -> Path:
+        session_dir = (
+            self.dsh_dir
+            / "sessions"
+            / self._project_key(cwd)
+            / session_id
+        )
+        compressed = session_dir / "session.jsonl.zstd"
+        return compressed if compressed.is_file() else session_dir / "session.jsonl"
+
+    @staticmethod
+    def _logical_lines(path: Path):
+        if path.name.endswith(".zstd"):
+            if zstandard is None:
+                raise RuntimeError(
+                    "Missing dependency: install it with 'python3 -m pip install zstandard'"
+                )
+            with path.open("rb") as compressed, zstandard.ZstdDecompressor().stream_reader(
+                compressed, read_across_frames=True
+            ) as reader, io.TextIOWrapper(reader, encoding="utf-8") as text:
+                yield from text
+        else:
+            with path.open(encoding="utf-8") as text:
+                yield from text
+
+    def _read_session_metadata(self, path: Path) -> tuple[str, str, datetime]:
+        records = iter(self._logical_lines(path))
+        header = json.loads(next(records))
+        title = UNKNOWN_TITLE
+        activity_time = header["createdAt"]
+
+        for line in records:
+            record = json.loads(line)
+            activity_time = record.get("time", activity_time)
+            if record.get("type") == "session/title":
+                title = record["data"]["title"]
+
+        cwd = header.get("cwd", "")
+        timestamp = datetime.fromtimestamp(activity_time / 1000).astimezone()
+        return cwd, title, timestamp
+
+    def load_sessions(self) -> list[SessionEntry]:
+        if not self.workspace_file.is_file():
+            return []
+
+        with self.workspace_file.open(encoding="utf-8") as file:
+            workspace_data = json.load(file)
+        sessions: list[SessionEntry] = []
+
+        for workspace in workspace_data["tables"]["workspaces"].values():
+            for session_id in workspace["sessionIds"]:
+                session_file = self._session_file(session_id, workspace["path"])
+                cwd, title, timestamp = self._read_session_metadata(session_file)
+                sessions.append(
+                    SessionEntry(
+                        session_id=session_id,
+                        session_file=session_file,
+                        cwd=cwd,
+                        title=title,
+                        timestamp=timestamp,
+                        is_valid=Path(cwd).is_dir(),
+                    )
+                )
+
+        sessions.sort(key=lambda entry: entry.timestamp, reverse=True)
+        return sessions
+
+    def _write_workspace(self, workspace_data: dict) -> None:
+        temporary_path = self.workspace_file.with_suffix(".json.tmp")
+        with temporary_path.open("w", encoding="utf-8") as file:
+            json.dump(workspace_data, file, ensure_ascii=False, indent=2)
+            file.write("\n")
+        os.replace(temporary_path, self.workspace_file)
+
+    def delete_session(self, entry: SessionEntry) -> None:
+        with self.workspace_file.open(encoding="utf-8") as file:
+            workspace_data = json.load(file)
+        for workspace in workspace_data["tables"]["workspaces"].values():
+            session_ids = workspace["sessionIds"]
+            if entry.session_id in session_ids:
+                workspace["sessionIds"] = [
+                    session_id for session_id in session_ids if session_id != entry.session_id
+                ]
+
+        archived_ids = workspace_data["global"]["archivedSessionIds"]
+        workspace_data["global"]["archivedSessionIds"] = [
+            session_id for session_id in archived_ids if session_id != entry.session_id
+        ]
+
+        self._write_workspace(workspace_data)
+        entry.session_file.unlink(missing_ok=True)
+        try:
+            entry.session_file.parent.rmdir()
+        except OSError:
+            # A session directory may contain other session-owned artifacts.
+            pass
 
 
 class SessionList(Static):
@@ -231,7 +360,7 @@ class SessionManagerApp(App[None]):
         Binding("ctrl+c", "quit", "Quit"),
     ]
 
-    def __init__(self, store: CodexSessionStore) -> None:
+    def __init__(self, store: SessionStore) -> None:
         super().__init__()
         self.store = store
         self.current_cwd = os.getcwd()
@@ -256,7 +385,7 @@ class SessionManagerApp(App[None]):
     def refresh_sessions(self) -> None:
         try:
             self.sessions = self.store.load_sessions()
-        except sqlite3.Error as error:
+        except (OSError, RuntimeError, sqlite3.Error, TypeError, ValueError) as error:
             self.sessions = []
             self.set_status(f"Load failed: {error}")
         if self.show_all:
@@ -350,8 +479,17 @@ class SessionManagerApp(App[None]):
         self.set_status(f"Deleted {len(invalid_entries)} invalid sessions")
 
 
-def main() -> None:
-    SessionManagerApp(CodexSessionStore()).run()
+def main():
+    match sys.argv:
+        case [prog, "codex"]:
+            store = CodexSessionStore()
+        case [prog, "dsh"]:
+            store = DshSessionStore()
+        case [prog, *_]:
+            print(f"Usage: {prog} <codex|dsh>")
+            return
+
+    SessionManagerApp(store).run()
 
 
 if __name__ == "__main__":
