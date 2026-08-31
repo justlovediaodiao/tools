@@ -8,5 +8,6 @@ Simple useful tools.
 - filerename: A GUI tool to batch rename files.
 - htmltool: HTML pages for some functions.
 - fmtp: Sync mtp device and local directory.
+- RawV: Browse camera photo previews and delete matching JPG/RAW files together.
 - ssm: Claude Code and Codex session manager.
 - tunnel: Relay tcp/udp data.

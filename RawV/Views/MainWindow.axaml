@@ -1,0 +1,394 @@
+<Window
+    x:Class="RawV.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:RawV.ViewModels"
+    xmlns:conv="using:RawV.Converters"
+    xmlns:services="using:RawV.Services"
+    Width="1400"
+    Height="820"
+    MinWidth="960"
+    MinHeight="640"
+    Background="Transparent"
+    Icon="avares://RawV/Assets/RawVLogo.ico"
+    mc:Ignorable="d"
+    Title="RawV">
+
+  <Panel>
+    <!-- Acrylic background -->
+    <Panel.Background>
+      <SolidColorBrush Color="#F3F3F3" />
+    </Panel.Background>
+
+    <!-- Content Grid with Thumbnail Panel -->
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{Binding IsSidebarVisible, Converter={x:Static conv:Converters.SidebarWidthConverter}}" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <!-- Left: Thumbnail List Panel -->
+      <Border
+          Grid.Column="0"
+          Background="#E8E8E8"
+          BorderBrush="#CCCCCC"
+          BorderThickness="0,0,1,0"
+          ClipToBounds="True">
+        <Grid RowDefinitions="Auto,*">
+          <!-- Header with Toggle Button - Always visible -->
+          <Border Grid.Row="0" Height="36" Background="#F0F0F0" BorderBrush="#CCCCCC" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Photos" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0" Opacity="0.8" HorizontalAlignment="Left" Grid.Column="0" />
+              <TextBlock Text="{Binding Thumbnails.Count}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" Opacity="0.6" HorizontalAlignment="Right" Grid.Column="1" />
+            </Grid>
+          </Border>
+
+          <!-- Thumbnail List -->
+          <ListBox Grid.Row="1"
+                   x:Name="ThumbnailListBox"
+                   IsVisible="{Binding CurrentSession.HasItems}"
+                   ItemsSource="{Binding Thumbnails}"
+                   SelectedItem="{Binding SelectedThumbnail}"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   Padding="0"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <VirtualizingStackPanel Orientation="Vertical" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+              <DataTemplate DataType="vm:ThumbnailItemViewModel">
+                <Border Width="148" Height="132" Margin="4,2" CornerRadius="4"
+                        BorderBrush="#0078D4" BorderThickness="{Binding IsSelected, Converter={x:Static conv:Converters.SelectedBorderThicknessConverter}}">
+                  <Grid RowDefinitions="*,Auto">
+                    <!-- Image area -->
+                    <Panel Grid.Row="0" Margin="4,4,4,0">
+                      <!-- Gray placeholder background - shown when not loaded -->
+                      <Panel Background="#C0C0C0" IsVisible="{Binding !IsLoaded}" />
+
+                      <!-- Actual thumbnail -->
+                      <Image Source="{Binding Thumbnail}" Stretch="Uniform"
+                             IsVisible="{Binding IsLoaded}" />
+                    </Panel>
+
+                    <!-- File name - displayed below the image -->
+                    <TextBlock Grid.Row="1" Text="{Binding FileName}" FontSize="9" Foreground="#666666" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" HorizontalAlignment="Center" Margin="6,4,6,6"
+                               MaxWidth="136" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+              <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+              <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+            </ListBox.Styles>
+          </ListBox>
+
+        </Grid>
+      </Border>
+
+      <!-- Right: Main Content -->
+      <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+
+      <!-- Top Command Bar - Compact WinUI style -->
+      <Border
+          Grid.Row="0"
+          Height="48"
+          Padding="12,0">
+        <Border.Background>
+          <SolidColorBrush Color="#FFFFFF" Opacity="0.8" />
+        </Border.Background>
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <!-- Left: Menu button and Logo -->
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <ToggleButton
+                Classes="MenuToggle"
+                IsChecked="{Binding IsSidebarVisible, Mode=TwoWay}"
+                ToolTip.Tip="Toggle Sidebar">
+              <PathIcon Data="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+            </ToggleButton>
+            <Image Source="avares://RawV/Assets/RawVLogo.png" Width="24" Height="24" />
+            <TextBlock
+                Text="RawV"
+                FontSize="14"
+                FontWeight="SemiBold"
+                VerticalAlignment="Center" />
+          </StackPanel>
+
+          <!-- Center: Navigation and actions -->
+          <StackPanel
+              Grid.Column="1"
+              Orientation="Horizontal"
+              HorizontalAlignment="Center"
+              Spacing="4">
+            <Button
+                Command="{Binding PreviousCommand}"
+                ToolTip.Tip="Previous (Left Arrow)"
+                Focusable="False">
+              <PathIcon Data="M15.41,7.41L14,6l-6,6l6,6l1.41,-1.41L10.83,12L15.41,7.41z" />
+            </Button>
+            <Button
+                Command="{Binding NextCommand}"
+                ToolTip.Tip="Next (Right Arrow)"
+                Focusable="False">
+              <PathIcon Data="M8.59,16.59L10,18l6,-6l-6,-6l-1.41,1.41L13.17,12L8.59,16.59z" />
+            </Button>
+            <Rectangle Width="1" Height="24" Fill="#20000000" Margin="8,0" />
+            <Button
+                x:Name="DeleteButton"
+                Classes="Delete"
+                Click="OnDeleteClick"
+                IsEnabled="{Binding CanDelete}"
+                ToolTip.Tip="Move to Recycle Bin (Delete)"
+                Focusable="False">
+              <PathIcon Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+            </Button>
+          </StackPanel>
+
+          <!-- Right: Settings -->
+          <StackPanel
+              Grid.Column="2"
+              Orientation="Horizontal"
+              Spacing="8"
+              VerticalAlignment="Center">
+            <ToggleButton
+                Classes="MenuToggle ConfirmToggle"
+                IsChecked="{Binding DeleteConfirmationEnabled, Mode=TwoWay}"
+                ToolTip.Tip="Confirm before deleting"
+                Focusable="False">
+              <PathIcon Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" />
+            </ToggleButton>
+            <Button
+                Click="OnFmtpClick"
+                IsVisible="{x:Static services:FmtpService.IsExecutableAvailable}"
+                ToolTip.Tip="Sync with MTP device"
+                Width="32"
+                Height="32"
+                Padding="8,4"
+                Focusable="False">
+              <PathIcon Data="M12,4V1L8,5L12,9V6C15.31,6 18,8.69 18,12C18,13.01 17.75,13.95 17.31,14.78L18.77,16.24C19.54,15 20,13.55 20,12C20,7.58 16.42,4 12,4M6.69,9.22L5.23,7.76C4.46,9 4,10.45 4,12C4,16.42 7.58,20 12,20V23L16,19L12,15V18C8.69,18 6,15.31 6,12C6,10.99 6.25,10.05 6.69,9.22Z" />
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Main Image Area - Maximizes space for image -->
+      <Panel Grid.Row="1" Background="#E8E8E8">
+        <!-- Image Display -->
+        <Panel IsVisible="{Binding HasImage}" Margin="0">
+          <Image
+              Source="{Binding CurrentBitmap}"
+              Stretch="Uniform"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+        </Panel>
+
+        <!-- Loading State -->
+        <Panel IsVisible="{Binding IsBusy}">
+          <Panel.Background>
+            <SolidColorBrush Color="#E8E8E8" />
+          </Panel.Background>
+          <StackPanel
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Spacing="12">
+            <ProgressBar Width="200" IsIndeterminate="True" />
+            <TextBlock Text="Loading image..." Opacity="0.6" Foreground="#1A1A1A" />
+          </StackPanel>
+        </Panel>
+
+        <!-- Empty State -->
+        <Panel IsVisible="{Binding IsEmptyState}">
+          <StackPanel
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Spacing="16">
+            <Image Source="avares://RawV/Assets/RawVLogo.png" Width="80" Height="80" Opacity="0.3" />
+            <TextBlock
+                Text="RawV"
+                FontSize="28"
+                FontWeight="Light"
+                HorizontalAlignment="Center"
+                Opacity="0.4"
+                Foreground="#1A1A1A" />
+            <TextBlock
+                Text="Open images or folder to start browsing"
+                FontSize="14"
+                HorizontalAlignment="Center"
+                Opacity="0.5"
+                Foreground="#1A1A1A" />
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="12"
+                Margin="0,16,0,0">
+              <Button Click="OnOpenFilesClick" Classes="Accent" Focusable="False">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <PathIcon Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                  <TextBlock Text="Open Files" />
+                </StackPanel>
+              </Button>
+              <Button Click="OnOpenFolderClick" Focusable="False">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <PathIcon Data="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />
+                  <TextBlock Text="Open Folder" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </StackPanel>
+        </Panel>
+
+        <!-- Error State -->
+        <Panel IsVisible="{Binding HasError}">
+          <Border Background="#66000000" />
+          <Border
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              MaxWidth="540"
+              Margin="24"
+              Padding="24"
+              CornerRadius="16"
+              Background="#F7FBFF"
+              BorderBrush="#40FF6B6B"
+              BorderThickness="1">
+            <StackPanel Spacing="14">
+              <Border
+                  Width="56"
+                  Height="56"
+                  CornerRadius="28"
+                  Background="#1AFF6B6B"
+                  HorizontalAlignment="Center">
+                <PathIcon
+                    Data="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM13,17h-2v-2h2v2zM13,13h-2V7h2v6z"
+                    Width="28"
+                    Height="28"
+                    Foreground="#D64545"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+              </Border>
+              <TextBlock
+                  Text="Failed to Load Image"
+                  FontSize="20"
+                  FontWeight="SemiBold"
+                  HorizontalAlignment="Center"
+                  Foreground="#1A1A1A" />
+              <TextBlock
+                  Text="{Binding ErrorMessage}"
+                  TextWrapping="Wrap"
+                  TextAlignment="Center"
+                  LineHeight="22"
+                  Foreground="#4A4A4A" />
+            </StackPanel>
+          </Border>
+        </Panel>
+      </Panel>
+
+      <!-- Bottom Status Bar - Compact -->
+      <Border
+          Grid.Row="2"
+          Height="28"
+          Padding="12,0">
+        <Border.Background>
+          <SolidColorBrush Color="#FFFFFF" Opacity="0.8" />
+        </Border.Background>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock
+              Grid.Column="0"
+              Text="{Binding CurrentFileName}"
+              VerticalAlignment="Center"
+              FontSize="12"
+              TextTrimming="CharacterEllipsis"
+              Opacity="0.9" />
+          <TextBlock
+              Grid.Column="1"
+              Text="{Binding CurrentStatus}"
+              VerticalAlignment="Center"
+              FontSize="12"
+              Margin="16,0,0,0"
+              Opacity="0.7" />
+        </Grid>
+      </Border>
+
+      </Grid>
+    </Grid>
+  </Panel>
+
+  <Window.Styles>
+    <!-- ToggleButton base style -->
+    <Style Selector="ToggleButton.MenuToggle">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Width" Value="32" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border
+              Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              CornerRadius="{TemplateBinding CornerRadius}">
+            <ContentPresenter
+                Content="{TemplateBinding Content}"
+                ContentTemplate="{TemplateBinding ContentTemplate}"
+                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.MenuToggle:pointerover">
+      <Setter Property="Background" Value="#20000000" />
+    </Style>
+
+    <Style Selector="ToggleButton.MenuToggle:pressed">
+      <Setter Property="Background" Value="#30000000" />
+    </Style>
+
+    <Style Selector="ToggleButton.MenuToggle:checked">
+      <Setter Property="Background" Value="#30000000" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.MenuToggle:checked:pointerover">
+      <Setter Property="Background" Value="#30000000" />
+    </Style>
+
+    <Style Selector="ToggleButton.MenuToggle:checked:pressed">
+      <Setter Property="Background" Value="#40000000" />
+    </Style>
+
+    <Style Selector="ToggleButton.ConfirmToggle:checked">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.ConfirmToggle:checked:pointerover">
+      <Setter Property="Background" Value="#20000000" />
+    </Style>
+
+    <Style Selector="ToggleButton.ConfirmToggle:checked PathIcon">
+      <Setter Property="Foreground" Value="#0078D4" />
+    </Style>
+
+  </Window.Styles>
+
+</Window>

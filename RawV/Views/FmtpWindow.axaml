@@ -1,0 +1,159 @@
+<Window
+    x:Class="RawV.Views.FmtpWindow"
+    x:DataType="vm:FmtpWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:RawV.ViewModels"
+    Width="760"
+    Height="620"
+    MinWidth="620"
+    MinHeight="560"
+    Background="#F3F3F3"
+    Icon="avares://RawV/Assets/RawVLogo.ico"
+    mc:Ignorable="d"
+    Title="MTP Sync">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Padding="24,20" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="4">
+        <TextBlock Text="MTP Sync" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="Copy new files from the device and move local-only files into the local diff folder."
+                   Foreground="#666666" TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="24" Spacing="18">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Local directory" FontWeight="SemiBold" />
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBox Grid.Column="0" Text="{Binding LocalDirectory, Mode=TwoWay}"
+                     IsEnabled="{Binding !IsRunning}" PlaceholderText="Folder to synchronize" />
+            <Button Grid.Column="1" Classes="Secondary IconButton" Margin="8,0,0,0"
+                    Click="OnBrowseLocalDirectoryClick" IsEnabled="{Binding !IsRunning}"
+                    ToolTip.Tip="Choose local directory">
+              <PathIcon Data="M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />
+            </Button>
+          </Grid>
+        </StackPanel>
+
+        <StackPanel Spacing="6">
+          <TextBlock Text="MTP Directory" FontWeight="SemiBold" />
+          <TextBox Text="{Binding MtpPath, Mode=TwoWay}"
+                   IsEnabled="{Binding !IsRunning}"
+                   PlaceholderText="Paste the MTP path from Windows Explorer" />
+        </StackPanel>
+
+        <Border Padding="16" CornerRadius="8" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="1">
+          <StackPanel Spacing="14">
+            <Grid ColumnDefinitions="Auto,*">
+              <TextBlock Grid.Column="0" Text="Status" FontWeight="SemiBold" />
+              <TextBlock Grid.Column="1" Margin="12,0,0,0" Text="{Binding StatusMessage}"
+                         TextTrimming="CharacterEllipsis" />
+            </Grid>
+
+            <StackPanel Spacing="5" IsVisible="{Binding HasMoveProgress}">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="Move to diff" Width="88" />
+                <TextBlock Grid.Column="1" Text="{Binding MoveFile}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="2" Margin="12,0,0,0">
+                  <Run Text="{Binding MoveCurrent}" /><Run Text=" / " /><Run Text="{Binding MoveTotal}" />
+                </TextBlock>
+              </Grid>
+              <ProgressBar Minimum="0" Maximum="{Binding MoveMaximum}" Value="{Binding MoveCurrent}" />
+            </StackPanel>
+
+            <StackPanel Spacing="5" IsVisible="{Binding HasCopyProgress}">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="Copy from MTP" Width="88" />
+                <TextBlock Grid.Column="1" Text="{Binding CopyFile}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="2" Margin="12,0,0,0">
+                  <Run Text="{Binding CopyCurrent}" /><Run Text=" / " /><Run Text="{Binding CopyTotal}" />
+                </TextBlock>
+              </Grid>
+              <ProgressBar Minimum="0" Maximum="{Binding CopyMaximum}" Value="{Binding CopyCurrent}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="7">
+          <Button Classes="LinkButton" Click="OnToggleActivityClick">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Text="Activity"/>
+              <Panel Width="14" Height="14">
+                <PathIcon Data="M7.41,8.59L12,13.17L16.59,8.59L18,10L12,16L6,10L7.41,8.59Z"
+                          Width="14" Height="14" IsVisible="{Binding !IsActivityExpanded}" />
+                <PathIcon Data="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"
+                          Width="14" Height="14" IsVisible="{Binding IsActivityExpanded}" />
+              </Panel>
+            </StackPanel>
+          </Button>
+          <Border Height="170" Background="#FAFAFA" BorderBrush="#28000000" BorderThickness="1"
+                  CornerRadius="6" IsVisible="{Binding IsActivityExpanded}" ClipToBounds="True">
+              <ListBox x:Name="LogListBox" ItemsSource="{Binding LogEntries}"
+                       Background="Transparent" BorderThickness="0" Padding="10,6"
+                       FontFamily="Consolas,Menlo,monospace" FontSize="12" SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+          </Border>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="16,12" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="0,1,0,0">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Command="{Binding CancelCommand}" IsVisible="{Binding IsRunning}" Height="34">
+          <TextBlock Text="Cancel" />
+        </Button>
+        <Button Command="{Binding RunCommand}" Classes="Accent" Height="34" Padding="18,4">
+          <TextBlock Text="Start sync" />
+        </Button>
+        <Button Click="OnCloseClick" Classes="Secondary" IsEnabled="{Binding !IsRunning}" Height="34" Padding="18,4">
+          <TextBlock Text="Close" />
+        </Button>
+      </StackPanel>
+    </Border>
+  </Grid>
+
+  <Window.Styles>
+    <Style Selector="Button.Secondary">
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#38000000" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.Secondary:pointerover">
+      <Setter Property="Background" Value="#F5F5F5" />
+      <Setter Property="BorderBrush" Value="#50000000" />
+    </Style>
+    <Style Selector="Button.Secondary:pressed">
+      <Setter Property="Background" Value="#EAEAEA" />
+    </Style>
+    <Style Selector="Button.IconButton">
+      <Setter Property="Width" Value="36" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="8" />
+    </Style>
+    <Style Selector="Button.LinkButton">
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="Button.LinkButton:pointerover">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Opacity" Value="0.8" />
+    </Style>
+    <Style Selector="Button.LinkButton:pressed">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Opacity" Value="0.65" />
+    </Style>
+  </Window.Styles>
+</Window>
