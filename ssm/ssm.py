@@ -144,23 +144,14 @@ class DshSessionStore:
             / self._project_key(cwd)
             / session_id
         )
-        compressed = session_dir / "session.jsonl.zstd"
-        return compressed if compressed.is_file() else session_dir / "session.jsonl"
+        return session_dir / "session.v3.jsonl.zstd"
 
     @staticmethod
     def _logical_lines(path: Path):
-        if path.name.endswith(".zstd"):
-            if zstandard is None:
-                raise RuntimeError(
-                    "Missing dependency: install it with 'python3 -m pip install zstandard'"
-                )
-            with path.open("rb") as compressed, zstandard.ZstdDecompressor().stream_reader(
-                compressed, read_across_frames=True
-            ) as reader, io.TextIOWrapper(reader, encoding="utf-8") as text:
-                yield from text
-        else:
-            with path.open(encoding="utf-8") as text:
-                yield from text
+        with path.open("rb") as compressed, zstandard.ZstdDecompressor().stream_reader(
+            compressed, read_across_frames=True
+        ) as reader, io.TextIOWrapper(reader, encoding="utf-8") as text:
+            yield from text
 
     def _read_session_metadata(self, path: Path) -> tuple[str, str, datetime]:
         records = iter(self._logical_lines(path))

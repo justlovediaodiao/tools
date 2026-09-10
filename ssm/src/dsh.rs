@@ -61,25 +61,12 @@ impl DshSessionStore {
             .join("sessions")
             .join(Self::project_key(cwd))
             .join(session_id);
-        let compressed = session_dir.join("session.jsonl.zstd");
-        if compressed.is_file() {
-            compressed
-        } else {
-            session_dir.join("session.jsonl")
-        }
+        session_dir.join("session.v3.jsonl.zstd")
     }
 
     fn read_session_metadata(path: &Path) -> StoreResult<(String, String, DateTime<Local>)> {
         let file = fs::File::open(path)?;
-        let reader: Box<dyn BufRead> = if path
-            .file_name()
-            .and_then(|name| name.to_str())
-            .is_some_and(|name| name.ends_with(".zstd"))
-        {
-            Box::new(BufReader::new(zstd::stream::read::Decoder::new(file)?))
-        } else {
-            Box::new(BufReader::new(file))
-        };
+        let reader = BufReader::new(zstd::stream::read::Decoder::new(file)?);
         let mut records = reader.lines();
         let header: Value = serde_json::from_str(
             &records
