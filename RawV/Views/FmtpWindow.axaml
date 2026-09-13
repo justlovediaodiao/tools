@@ -24,9 +24,8 @@
       </StackPanel>
     </Border>
 
-    <ScrollViewer Grid.Row="1">
-      <StackPanel Margin="24" Spacing="18">
-        <StackPanel Spacing="6">
+    <Grid Grid.Row="1" Margin="24" RowDefinitions="Auto,Auto,Auto,*">
+        <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,18">
           <TextBlock Text="Local directory" FontWeight="SemiBold" />
           <Grid ColumnDefinitions="*,Auto">
             <TextBox Grid.Column="0" Text="{Binding LocalDirectory, Mode=TwoWay}"
@@ -39,14 +38,14 @@
           </Grid>
         </StackPanel>
 
-        <StackPanel Spacing="6">
+        <StackPanel Grid.Row="1" Spacing="6" Margin="0,0,0,18">
           <TextBlock Text="MTP Directory" FontWeight="SemiBold" />
           <TextBox Text="{Binding MtpPath, Mode=TwoWay}"
                    IsEnabled="{Binding !IsRunning}"
                    PlaceholderText="Paste the MTP path from Windows Explorer" />
         </StackPanel>
 
-        <Border Padding="16" CornerRadius="8" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="1">
+        <Border Grid.Row="2" Margin="0,0,0,18" Padding="16" CornerRadius="8" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="1">
           <StackPanel Spacing="14">
             <Grid ColumnDefinitions="Auto,*">
               <TextBlock Grid.Column="0" Text="Status" FontWeight="SemiBold" />
@@ -78,8 +77,8 @@
           </StackPanel>
         </Border>
 
-        <StackPanel Spacing="7">
-          <Button Classes="LinkButton" Click="OnToggleActivityClick">
+        <Grid Grid.Row="3" RowDefinitions="Auto,*">
+          <Button Grid.Row="0" Classes="LinkButton" Click="OnToggleActivityClick">
             <StackPanel Orientation="Horizontal" Spacing="5">
               <TextBlock Text="Activity"/>
               <Panel Width="14" Height="14">
@@ -90,7 +89,7 @@
               </Panel>
             </StackPanel>
           </Button>
-          <Border Height="170" Background="#FAFAFA" BorderBrush="#28000000" BorderThickness="1"
+          <Border Grid.Row="1" Margin="0,7,0,0" Background="#FAFAFA" BorderBrush="#28000000" BorderThickness="1"
                   CornerRadius="6" IsVisible="{Binding IsActivityExpanded}" ClipToBounds="True">
               <ListBox x:Name="LogListBox" ItemsSource="{Binding LogEntries}"
                        Background="Transparent" BorderThickness="0" Padding="10,6"
@@ -102,9 +101,8 @@
                 </ListBox.ItemTemplate>
               </ListBox>
           </Border>
-        </StackPanel>
-      </StackPanel>
-    </ScrollViewer>
+        </Grid>
+    </Grid>
 
     <Border Grid.Row="2" Padding="16,12" Background="#FFFFFF" BorderBrush="#18000000" BorderThickness="0,1,0,0">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
