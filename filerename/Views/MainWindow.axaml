@@ -8,7 +8,7 @@
                  d:DesignWidth="1100" d:DesignHeight="720"
                  x:Class="filerename.Views.MainWindow"
                  x:DataType="vm:MainWindowViewModel"
-                 Icon="avares://filerename/Assets/avalonia-logo.ico"
+                 Icon="avares://filerename/Assets/FileRenameLogo.ico"
                  Title="File Rename"
                  Width="1100" Height="720"
                  BackgroundStyle="Gradient"

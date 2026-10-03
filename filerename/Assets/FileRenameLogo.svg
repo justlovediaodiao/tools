@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <title>File Rename</title>
+  <rect width="512" height="512" rx="96" fill="#4F46E5"/>
+  <rect x="102" y="100" width="308" height="68" rx="18" fill="#FFFFFF"/>
+  <rect x="102" y="344" width="308" height="68" rx="18" fill="#FFFFFF"/>
+  <path d="M154 234H282V202C282 187 298 181 309 192L365 244C372 251 372 261 365 268L309 320C298 331 282 325 282 310V278H154C144 278 136 270 136 260V252C136 242 144 234 154 234Z" fill="#FFFFFF"/>
+</svg>
