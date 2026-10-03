@@ -1,3 +1,4 @@
+using SukiUI.Controls;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -11,7 +12,7 @@ using RawV.ViewModels;
 
 namespace RawV.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : SukiWindow
 {
     private ListBox? _thumbnailListBox;
     private ScrollViewer? _scrollViewer;
@@ -25,6 +26,11 @@ public partial class MainWindow : Window
         AddHandler(KeyDownEvent, OnWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         InitializeDebounceTimer();
         InitializeListBox();
+        Closed += (_, _) =>
+        {
+            _debounceTimer?.Stop();
+            (DataContext as MainWindowViewModel)?.Dispose();
+        };
     }
 
     private void InitializeDebounceTimer()

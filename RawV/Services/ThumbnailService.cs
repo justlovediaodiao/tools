@@ -2,8 +2,10 @@ using Avalonia.Media.Imaging;
 
 namespace RawV.Services;
 
-public sealed class ThumbnailService : IDisposable
+public sealed class ThumbnailService(ImageLoaderService imageLoader) : IDisposable
 {
+    private int _generation;
+    private readonly Dictionary<string, int> _fileVersions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Bitmap> _cache = new(StringComparer.OrdinalIgnoreCase);
 
     public async Task<Bitmap?> GetThumbnailAsync(string filePath, int width, int height, CancellationToken cancellationToken = default)
@@ -20,7 +22,15 @@ public sealed class ThumbnailService : IDisposable
             return cachedBitmap;
         }
 
+        var generation = _generation;
+        var fileVersion = _fileVersions.GetValueOrDefault(filePath);
         var bitmap = await LoadThumbnailAsync(filePath, width, height, cancellationToken);
+        if (generation != _generation || fileVersion != _fileVersions.GetValueOrDefault(filePath))
+        {
+            bitmap?.Dispose();
+            return null;
+        }
+
         if (bitmap is not null)
         {
             _cache[cacheKey] = bitmap;
@@ -31,6 +41,7 @@ public sealed class ThumbnailService : IDisposable
 
     public void InvalidateCache(string filePath)
     {
+        _fileVersions[filePath] = _fileVersions.GetValueOrDefault(filePath) + 1;
         var keysToRemove = _cache.Keys.Where(k => k.StartsWith(filePath + ":", StringComparison.OrdinalIgnoreCase)).ToArray();
         foreach (var key in keysToRemove)
         {
@@ -44,6 +55,8 @@ public sealed class ThumbnailService : IDisposable
 
     public void ClearCache()
     {
+        _generation++;
+        _fileVersions.Clear();
         foreach (var bitmap in _cache.Values)
         {
             bitmap?.Dispose();
@@ -51,43 +64,20 @@ public sealed class ThumbnailService : IDisposable
         _cache.Clear();
     }
 
-    private static async Task<Bitmap?> LoadThumbnailAsync(string filePath, int targetWidth, int targetHeight, CancellationToken cancellationToken)
+    private async Task<Bitmap?> LoadThumbnailAsync(string filePath, int targetWidth, int targetHeight, CancellationToken cancellationToken)
     {
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
+            using var image = await imageLoader.LoadAsync(filePath, cancellationToken);
+            var original = image.Bitmap;
             return await Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                using var fileStream = File.OpenRead(filePath);
-                var original = new Bitmap(fileStream);
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var originalWidth = original.PixelSize.Width;
-                    var originalHeight = original.PixelSize.Height;
-
-                    if (originalWidth <= targetWidth && originalHeight <= targetHeight)
-                    {
-                        return original;
-                    }
-
-                    var scale = Math.Min((double)targetWidth / originalWidth, (double)targetHeight / originalHeight);
-                    var newWidth = (int)(originalWidth * scale);
-                    var newHeight = (int)(originalHeight * scale);
-
-                    var resized = original.CreateScaledBitmap(new Avalonia.PixelSize(newWidth, newHeight));
-                    original.Dispose();
-                    return resized;
-                }
-                catch
-                {
-                    original.Dispose();
-                    throw;
-                }
+                var size = original.PixelSize;
+                var scale = Math.Min(1, Math.Min((double)targetWidth / size.Width, (double)targetHeight / size.Height));
+                // Always create an independently owned thumbnail, including small images.
+                return original.CreateScaledBitmap(new Avalonia.PixelSize(
+                    Math.Max(1, (int)(size.Width * scale)), Math.Max(1, (int)(size.Height * scale))));
             }, cancellationToken);
         }
         catch (OperationCanceledException)

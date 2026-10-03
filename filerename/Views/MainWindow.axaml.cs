@@ -1,9 +1,9 @@
-using Avalonia.Controls;
+using SukiUI.Controls;
 using filerename.ViewModels;
 
 namespace filerename.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : SukiWindow
 {
     public MainWindow()
     {

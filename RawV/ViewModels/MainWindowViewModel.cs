@@ -7,12 +7,35 @@ using System.Collections.ObjectModel;
 
 namespace RawV.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private readonly ImageCatalogService _imageCatalogService = new();
     private readonly ImageLoaderService _imageLoaderService = new();
     private readonly FileDeletionService _fileDeletionService = new();
-    private readonly ThumbnailService _thumbnailService = new();
+    private readonly ThumbnailService _thumbnailService;
+    private ImageLoaderService.ImageLease? _currentImage;
+
+    public MainWindowViewModel()
+    {
+        _thumbnailService = new ThumbnailService(_imageLoaderService);
+    }
+
+    private void ReleaseCurrentImage()
+    {
+        CurrentBitmap = null;
+        _currentImage?.Dispose();
+        _currentImage = null;
+    }
+
+    public void Dispose()
+    {
+        _navigationVersion++;
+        _loadQueue.Clear();
+        ReleaseCurrentImage();
+        Thumbnails.Clear();
+        _thumbnailService.Dispose();
+        _imageLoaderService.Dispose();
+    }
 
     [ObservableProperty]
     private Bitmap? currentBitmap;
@@ -128,13 +151,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task LoadSessionAsync(BrowserSession session)
     {
-        CurrentBitmap?.Dispose();
-        CurrentBitmap = null;
+        ReleaseCurrentImage();
         _navigationVersion++;
         IsBusy = false;
 
         Thumbnails.Clear();
         _thumbnailService.ClearCache();
+        _imageLoaderService.ClearCache();
 
         _loadQueue.Clear();
 
@@ -272,10 +295,9 @@ public partial class MainWindowViewModel : ViewModelBase
         var navigationVersion = ++_navigationVersion;
 
         var item = CurrentSession.Items[index];
-        CurrentBitmap?.Dispose();
-        CurrentBitmap = null;
+        ReleaseCurrentImage();
 
-        Bitmap? loadedBitmap = null;
+        ImageLoaderService.ImageLease? loadedBitmap = null;
         try
         {
             loadedBitmap = await _imageLoaderService.LoadAsync(item.FilePath);
@@ -294,7 +316,8 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        CurrentBitmap = loadedBitmap;
+        _currentImage = loadedBitmap;
+        CurrentBitmap = loadedBitmap?.Bitmap;
         CurrentSession = new BrowserSession(CurrentSession.Items, index);
         CurrentFileName = item.FileName;
         CurrentStatus = BuildStatus(item, CurrentBitmap, index, CurrentSession.Items.Count);
@@ -321,6 +344,7 @@ public partial class MainWindowViewModel : ViewModelBase
             .ToArray();
 
         _thumbnailService.InvalidateCache(deletedItem.FilePath);
+        _imageLoaderService.InvalidateCache(deletedItem.FilePath);
 
         var thumbnailToRemove = Thumbnails.FirstOrDefault(t => t.FilePath == deletedItem.FilePath);
         if (thumbnailToRemove is not null)
@@ -341,8 +365,7 @@ public partial class MainWindowViewModel : ViewModelBase
             };
         }
 
-        CurrentBitmap?.Dispose();
-        CurrentBitmap = null;
+        ReleaseCurrentImage();
         CurrentSession = new BrowserSession(remainingItems, ResolveNextIndexAfterDeletion(deletedItem, nextIndex, remainingItems.Length) ?? -1);
         ErrorMessage = string.Empty;
         IsBusy = false;

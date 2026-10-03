@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using Avalonia.Platform.Storage;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using filerename.Services;
@@ -12,7 +11,6 @@ public partial class MainWindowViewModel : ObservableObject
     public class PreviewPart
     {
         public string Text { get; set; } = string.Empty;
-        public IBrush Foreground { get; set; } = new SolidColorBrush(Colors.Gray);
     }
 
     [ObservableProperty]
@@ -27,6 +25,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<PreviewPart> _splitPreviewParts = new();
 
+    [ObservableProperty]
+    private string _previewMessage = string.Empty;
+
     partial void OnSeparatorChanged(string value)
     {
         UpdateSplitPreview();
@@ -36,7 +37,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         SplitPreviewParts.Clear();
 
-        if (string.IsNullOrWhiteSpace(Separator) || Files.Count == 0)
+        if (string.IsNullOrEmpty(Separator) || Files.Count == 0)
         {
             return;
         }
@@ -44,45 +45,12 @@ public partial class MainWindowViewModel : ObservableObject
         var firstFile = Files[0].OriginalName;
         var parts = firstFile.Split(Separator.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-        // Use fluent colors - softer blue
-        var accentBrush = new SolidColorBrush(Color.Parse("#0078D4"));
-        var grayBrush = new SolidColorBrush(Color.Parse("#6E6E6E"));
-        var textBrush = new SolidColorBrush(Colors.Black);
-
-        SplitPreviewParts.Add(new PreviewPart
-        {
-            Text = "Separator: ",
-            Foreground = grayBrush
-        });
-
         for (int i = 0; i < parts.Length; i++)
         {
             SplitPreviewParts.Add(new PreviewPart
             {
-                Text = $"{{{i}}}",
-                Foreground = accentBrush
+                Text = $"{{{i}}} = {parts[i]}"
             });
-
-            SplitPreviewParts.Add(new PreviewPart
-            {
-                Text = "=",
-                Foreground = grayBrush
-            });
-
-            SplitPreviewParts.Add(new PreviewPart
-            {
-                Text = parts[i],
-                Foreground = textBrush
-            });
-
-            if (i < parts.Length - 1)
-            {
-                SplitPreviewParts.Add(new PreviewPart
-                {
-                    Text = " ",
-                    Foreground = grayBrush
-                });
-            }
         }
     }
 
@@ -170,29 +138,50 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void Preview()
     {
-        if (string.IsNullOrWhiteSpace(Separator) || string.IsNullOrWhiteSpace(Rule))
+        if (Files.Count == 0)
         {
-            // In a real app, we might want to show a message.
-            // For now, we just return or maybe set a status property.
+            PreviewMessage = "Add files before previewing.";
+            return;
+        }
+        if (string.IsNullOrEmpty(Separator))
+        {
+            PreviewMessage = "Enter a separator. A space is also supported.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(Rule))
+        {
+            PreviewMessage = "Enter a rename rule, for example New_{0}.";
             return;
         }
 
+        var readyCount = 0;
+        var skippedCount = 0;
+        var selectedCount = 0;
         foreach (var item in Files)
         {
             if (!item.IsChecked || item.Status == SUCCESS) continue;
+            selectedCount++;
 
             var newName = FileName.PreviewRename(item.OriginalName, Separator, Rule);
             if (!string.IsNullOrEmpty(newName))
             {
                 item.Status = READY;
                 item.NewName = newName;
+                readyCount++;
             }
             else
             {
                 item.Status = SKIP;
                 item.NewName = string.Empty;
+                skippedCount++;
             }
         }
+
+        PreviewMessage = selectedCount == 0
+            ? "Check at least one file that has not already been renamed."
+            : skippedCount > 0
+                ? $"{readyCount} ready, {skippedCount} skipped. A placeholder index is outside the filename parts; indexes start at {{0}}."
+                : $"{readyCount} ready. See the New name column.";
     }
 
     [RelayCommand]
@@ -201,7 +190,7 @@ public partial class MainWindowViewModel : ObservableObject
         Preview(); // Ensure latest preview
 
         // Check if we have valid rules
-        if (string.IsNullOrWhiteSpace(Separator) || string.IsNullOrWhiteSpace(Rule))
+        if (string.IsNullOrEmpty(Separator) || string.IsNullOrWhiteSpace(Rule))
         {
              return;
         }

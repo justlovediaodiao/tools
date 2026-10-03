@@ -1,9 +1,10 @@
+using SukiUI.Controls;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace RawV.Views;
 
-public partial class DeleteConfirmationWindow : Window
+public partial class DeleteConfirmationWindow : SukiWindow
 {
     public DeleteConfirmationWindow()
     {

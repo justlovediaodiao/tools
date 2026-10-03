@@ -1,0 +1,87 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI">
+    <Style Selector="suki|SukiMainHost">
+        <Setter Property="Background" Value="{DynamicResource SukiStrongBackground}" />
+    </Style>
+    <Style Selector="suki|GlassCard">
+        <Setter Property="IsOpaque" Value="True" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="LineHeight" Value="20" />
+    </Style>
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="Menlo,Consolas,monospace" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.compact, ToggleButton.compact">
+        <Setter Property="Height" Value="28" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.main-action">
+        <Setter Property="Foreground" Value="{DynamicResource MainActionForeground}" />
+    </Style>
+    <Style Selector="Button.main-action:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SukiAccentColor}" />
+    </Style>
+    <Style Selector="Button.icon-action, ToggleButton.icon-action">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.icon-action:disabled, ToggleButton.icon-action:disabled">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Opacity" Value="0.3" />
+    </Style>
+    <Style Selector="Button.icon-action:pointerover, ToggleButton.icon-action:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SukiPrimaryColor10}" />
+    </Style>
+    <Style Selector="ToggleButton.workspace-toggle:checked">
+        <Setter Property="Foreground" Value="{DynamicResource SukiPrimaryColor}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="ToggleButton.workspace-toggle:checked:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SukiPrimaryColor10}" />
+    </Style>
+    <Style Selector="Button.danger">
+        <Setter Property="Foreground" Value="{DynamicResource DangerForeground}" />
+        <Setter Property="Background" Value="{DynamicResource DangerBackground}" />
+    </Style>
+    <Style Selector="Button.icon-action.danger">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.danger:pointerover">
+        <Setter Property="Background" Value="{DynamicResource DangerHoverBackground}" />
+    </Style>
+    <Style Selector="ListBox.photo-list ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+    <Style Selector="Border.thumbnail-frame">
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Background" Value="{DynamicResource PhotoCanvasBrush}" />
+    </Style>
+    <Style Selector="Border.thumbnail-frame.selected">
+        <Setter Property="BorderBrush" Value="{DynamicResource SukiPrimaryColor}" />
+    </Style>
+</Styles>

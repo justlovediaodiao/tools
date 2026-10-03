@@ -1,3 +1,4 @@
+using SukiUI.Controls;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -6,7 +7,7 @@ using System.Collections.Specialized;
 
 namespace RawV.Views;
 
-public partial class FmtpWindow : Window
+public partial class FmtpWindow : SukiWindow
 {
     private ListBox? _logListBox;
 
@@ -49,9 +50,6 @@ public partial class FmtpWindow : Window
     }
 
     private void OnCloseClick(object? sender, RoutedEventArgs e) => Close();
-
-    private void OnToggleActivityClick(object? sender, RoutedEventArgs e)
-        => ViewModel.IsActivityExpanded = !ViewModel.IsActivityExpanded;
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {

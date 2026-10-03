@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="SukiStrongBackground">#F5F7F6</Color>
+            <Color x:Key="SukiCardBackground">#FFFFFF</Color>
+            <Color x:Key="SukiGlassCardBackground">#F5FFFFFF</Color>
+            <Color x:Key="SukiGlassCardOpaqueBackground">#FFFFFF</Color>
+            <Color x:Key="SukiPopupBackground">#FFFFFF</Color>
+            <Color x:Key="SukiText">#232B29</Color>
+            <Color x:Key="SukiLowText">#5C6965</Color>
+            <Color x:Key="SukiMuteText">#717D79</Color>
+            <Color x:Key="SukiBorderBrush">#E2E8E5</Color>
+            <Color x:Key="GlassBorderBrush">#E2E8E5</Color>
+            <Color x:Key="SukiControlBorderBrush">#C5D1CC</Color>
+            <SolidColorBrush x:Key="MainActionForeground">White</SolidColorBrush>
+            <SolidColorBrush x:Key="PhotoCanvasBrush">#ECEEED</SolidColorBrush>
+            <SolidColorBrush x:Key="InsetBrush">#F2F5F3</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerForeground">#B3384B</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerBackground">#FBECEF</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerHoverBackground">#F6DCE2</SolidColorBrush>
+            <SolidColorBrush x:Key="ScrimBrush">#80000000</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="SukiStrongBackground">#171B1B</Color>
+            <Color x:Key="SukiCardBackground">#232929</Color>
+            <Color x:Key="SukiGlassCardBackground">#F0232929</Color>
+            <Color x:Key="SukiGlassCardOpaqueBackground">#232929</Color>
+            <Color x:Key="SukiPopupBackground">#232929</Color>
+            <Color x:Key="SukiText">#ECF2EF</Color>
+            <Color x:Key="SukiLowText">#B0BEB8</Color>
+            <Color x:Key="SukiMuteText">#97A7A0</Color>
+            <Color x:Key="SukiBorderBrush">#36413D</Color>
+            <Color x:Key="GlassBorderBrush">#36413D</Color>
+            <Color x:Key="SukiControlBorderBrush">#53645C</Color>
+            <SolidColorBrush x:Key="MainActionForeground">#132724</SolidColorBrush>
+            <SolidColorBrush x:Key="PhotoCanvasBrush">#141414</SolidColorBrush>
+            <SolidColorBrush x:Key="InsetBrush">#1B2120</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerForeground">#F3A5B1</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerBackground">#432B33</SolidColorBrush>
+            <SolidColorBrush x:Key="DangerHoverBackground">#573440</SolidColorBrush>
+            <SolidColorBrush x:Key="ScrimBrush">#A0000000</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
