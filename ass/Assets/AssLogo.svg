@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <title>ASS Timeline Adjuster</title>
+  <rect width="512" height="512" rx="96" fill="#086B75"/>
+  <path d="M108 164H294C318 164 326 178 315 200L305 220C298 235 286 244 270 244H86C63 244 59 230 70 208L80 188C87 172 96 164 108 164Z" fill="#FFFFFF"/>
+  <path d="M218 272H404C428 272 436 286 425 308L415 328C408 343 396 352 380 352H196C173 352 169 338 180 316L190 296C197 280 206 272 218 272Z" fill="#FFFFFF"/>
+</svg>

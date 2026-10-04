@@ -5,6 +5,7 @@
         x:Class="Ass.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="ASS Timeline Adjuster"
+        Icon="avares://ass/Assets/AssLogo.ico"
         Width="1100" Height="720" MinWidth="900" MinHeight="620"
         Background="{DynamicResource SukiStrongBackground}">
     <Grid Margin="24" ColumnDefinitions="280,*">
@@ -41,11 +42,25 @@
             </Grid>
         </suki:GlassCard>
         <suki:GlassCard Grid.Column="1">
-            <Grid Margin="20" RowDefinitions="Auto,Auto,*">
-                <TextBlock Text="Files" Classes="section-title" Margin="0,0,0,8" />
-                <TextBlock Grid.Row="1" Text="{Binding Files.Count, StringFormat='{}{0} files'}" Classes="secondary" Margin="0,0,0,16" />
-                <Grid Grid.Row="2">
-                    <DataGrid ItemsSource="{Binding Files}"
+            <Grid Margin="20" RowDefinitions="Auto,*">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                    <TextBlock Text="Files" Classes="section-title" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding Files.Count, StringFormat='{}{0} files'}"
+                               Classes="secondary" VerticalAlignment="Center" />
+                </Grid>
+                <Grid Grid.Row="1">
+                    <StackPanel IsVisible="{Binding !Files.Count}" Spacing="12"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="320">
+                        <Viewbox Width="40" Height="40" HorizontalAlignment="Center">
+                            <Path Width="34" Height="36" Stroke="{DynamicResource SukiPrimaryColor}"
+                                  StrokeThickness="1.5" StrokeJoin="Round"
+                                  Data="M 6,2 L 20,2 L 28,10 L 28,34 L 6,34 Z M 20,2 L 20,10 L 28,10 M 11,17 L 23,17 M 11,23 L 23,23 M 11,29 L 19,29" />
+                        </Viewbox>
+                        <TextBlock Text="Ready to adjust subtitles" Classes="label" HorizontalAlignment="Center" />
+                        <TextBlock Text="Choose ASS files to start. Preview the new start times before running."
+                                   Classes="secondary" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                    <DataGrid IsVisible="{Binding !!Files.Count}" ItemsSource="{Binding Files}"
                               Foreground="{DynamicResource SukiText}"
                               AutoGenerateColumns="False" IsReadOnly="True"
                               CanUserResizeColumns="True" CanUserSortColumns="False">
