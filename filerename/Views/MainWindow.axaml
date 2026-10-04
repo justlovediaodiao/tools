@@ -10,7 +10,7 @@
                  x:DataType="vm:MainWindowViewModel"
                  Icon="avares://filerename/Assets/FileRenameLogo.ico"
                  Title="File Rename"
-                 Width="1100" Height="720"
+                 Width="1200" Height="800"
                  Background="{DynamicResource SukiStrongBackground}"
                  MinWidth="900" MinHeight="620">
     <Design.DataContext>
@@ -22,15 +22,15 @@
             <Grid Margin="20" RowDefinitions="*,Auto">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Rename rule" Classes="section-title" />
-                        <TextBlock Classes="secondary" Text="Split filenames with a separator, then compose the new name using indexed placeholders."
+                        <TextBlock Text="Rename" Classes="section-title" />
+                        <TextBlock Classes="secondary" Text="Split filenames with a separator"
                                    TextWrapping="Wrap" />
                         <StackPanel Spacing="8">
                             <TextBlock Text="Separator" Classes="label" />
                             <TextBox Text="{Binding Separator}" PlaceholderText="e.g. _" />
                     </StackPanel>
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Rule" Classes="label" />
+                        <TextBlock Text="New Name" Classes="label" />
                         <TextBox Text="{Binding Rule}" PlaceholderText="e.g. New_{0}" />
                     </StackPanel>
                     <TextBlock Classes="secondary" Text="Use {0}, {1}, … for the parts below."

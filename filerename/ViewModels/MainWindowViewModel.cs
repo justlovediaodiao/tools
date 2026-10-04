@@ -150,7 +150,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
         if (string.IsNullOrWhiteSpace(Rule))
         {
-            PreviewMessage = "Enter a rename rule, for example New_{0}.";
+            PreviewMessage = "Enter a new rename, for example New_{0}.";
             return;
         }
 

@@ -17,8 +17,8 @@
                 </Border>
             </StackPanel>
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-                <Button Name="CancelDeleteButton" Content="Keep photo" Classes="Outlined" Click="OnCancelClick" />
-                <Button Name="ConfirmDeleteButton" Content="Move to bin" Classes="Basic danger" Click="OnConfirmClick" />
+                <Button Name="CancelDeleteButton" Content="Keep photo" Classes="Outlined" Click="OnCancelClick" IsCancel="True" />
+                <Button Name="ConfirmDeleteButton" Content="Move to bin" Classes="Basic danger" Click="OnConfirmClick" IsDefault="True"/>
             </StackPanel>
         </Grid>
     </suki:GlassCard>
