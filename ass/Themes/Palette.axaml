@@ -1,0 +1,65 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="SukiPrimaryColor">#6366F1</Color>
+            <Color x:Key="SukiPrimaryColor75">#BF6366F1</Color>
+            <Color x:Key="SukiPrimaryColor25">#406366F1</Color>
+            <Color x:Key="SukiPrimaryColor15">#266366F1</Color>
+            <Color x:Key="SukiPrimaryColor10">#1A6366F1</Color>
+            <Color x:Key="SukiPrimaryColor120">#6366F1</Color>
+            <Color x:Key="SukiAccentColor">#4F46E5</Color>
+            <Color x:Key="SukiAccentColor75">#BF4F46E5</Color>
+            <SolidColorBrush x:Key="MainActionForeground">White</SolidColorBrush>
+            <Color x:Key="SukiStrongBackground">#F5F6FA</Color>
+            <Color x:Key="SukiCardBackground">#FFFFFF</Color>
+            <Color x:Key="SukiGlassCardBackground">#F5FFFFFF</Color>
+            <Color x:Key="SukiGlassCardOpaqueBackground">#FFFFFF</Color>
+            <Color x:Key="SukiPopupBackground">#FFFFFF</Color>
+            <Color x:Key="SukiText">#252838</Color>
+            <Color x:Key="SukiLowText">#606579</Color>
+            <Color x:Key="SukiMuteText">#70758A</Color>
+            <Color x:Key="SukiBorderBrush">#E5E7F0</Color>
+            <Color x:Key="GlassBorderBrush">#E0E5EF</Color>
+            <Color x:Key="SukiControlBorderBrush">#C9CDDC</Color>
+            <SolidColorBrush x:Key="StatusReadyBackground">#EEF0FF</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusReadyForeground">#4F46E5</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSuccessBackground">#EAF6EF</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSuccessForeground">#23734B</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusErrorBackground">#FDEDEF</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusErrorForeground">#B9384D</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSkipBackground">#F0F1F5</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSkipForeground">#606579</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="SukiPrimaryColor">#818CF8</Color>
+            <Color x:Key="SukiPrimaryColor75">#BF818CF8</Color>
+            <Color x:Key="SukiPrimaryColor25">#40818CF8</Color>
+            <Color x:Key="SukiPrimaryColor15">#26818CF8</Color>
+            <Color x:Key="SukiPrimaryColor10">#1A818CF8</Color>
+            <Color x:Key="SukiPrimaryColor120">#D9DCFC</Color>
+            <Color x:Key="SukiAccentColor">#A5B4FC</Color>
+            <Color x:Key="SukiAccentColor75">#BFA5B4FC</Color>
+            <SolidColorBrush x:Key="MainActionForeground">#181A22</SolidColorBrush>
+            <Color x:Key="SukiStrongBackground">#181A22</Color>
+            <Color x:Key="SukiCardBackground">#242733</Color>
+            <Color x:Key="SukiGlassCardBackground">#EB242733</Color>
+            <Color x:Key="SukiGlassCardOpaqueBackground">#242733</Color>
+            <Color x:Key="SukiPopupBackground">#242733</Color>
+            <Color x:Key="SukiText">#ECEEF8</Color>
+            <Color x:Key="SukiLowText">#ADB3C9</Color>
+            <Color x:Key="SukiMuteText">#989FB8</Color>
+            <Color x:Key="SukiBorderBrush">#363B4E</Color>
+            <Color x:Key="GlassBorderBrush">#344056</Color>
+            <Color x:Key="SukiControlBorderBrush">#505870</Color>
+            <SolidColorBrush x:Key="StatusReadyBackground">#303451</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusReadyForeground">#B7BFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSuccessBackground">#243C32</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSuccessForeground">#8ED4AE</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusErrorBackground">#472D38</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusErrorForeground">#F4A4B0</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSkipBackground">#303441</SolidColorBrush>
+            <SolidColorBrush x:Key="StatusSkipForeground">#ADB3C9</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

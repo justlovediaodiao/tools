@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+        xmlns:vm="using:Ass.ViewModels"
+        x:Class="Ass.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="ASS Timeline Adjuster"
+        Width="1100" Height="720" MinWidth="900" MinHeight="620"
+        Background="{DynamicResource SukiStrongBackground}">
+    <Grid Margin="24" ColumnDefinitions="280,*">
+        <suki:GlassCard Margin="0,0,20,0">
+            <Grid Margin="20" RowDefinitions="*,Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Timeline offset" Classes="section-title" />
+                        <Separator />
+                        <TextBlock Text="Subtitle files" Classes="label" />
+                        <Button Content="Choose ASS files" Classes="Outlined"
+                                HorizontalAlignment="Stretch" Command="{Binding OpenFileCommand}"
+                                CommandParameter="{Binding $parent[Window].StorageProvider}" />
+                        <Button Classes="Outlined" Classes.output-selected="{Binding HasOutputFolder}"
+                                HorizontalAlignment="Stretch" Command="{Binding ChooseOutputCommand}"
+                                CommandParameter="{Binding $parent[Window].StorageProvider}"
+                                ToolTip.Tip="{Binding OutputFolderHint}">
+                            <TextBlock Text="Output folder" />
+                        </Button>
+                        <TextBlock Text="Offset (milliseconds)" Classes="label" />
+                        <TextBox Text="{Binding Offset, Mode=TwoWay}" IsEnabled="{Binding IsIdle}"
+                                 PlaceholderText="10 ms precision" />
+                        <TextBlock Text="Positive values delay subtitles. Negative values move them earlier."
+                                   Classes="secondary" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+                <StackPanel Grid.Row="1" Spacing="12" Margin="0,16,0,0">
+                    <Separator />
+                    <Button Content="Preview" Classes="Outlined" HorizontalAlignment="Stretch"
+                            Command="{Binding PreviewCommand}" />
+                    <Button Content="Run" Classes="Flat main-action" HorizontalAlignment="Stretch"
+                            Command="{Binding StartCommand}" />
+                </StackPanel>
+            </Grid>
+        </suki:GlassCard>
+        <suki:GlassCard Grid.Column="1">
+            <Grid Margin="20" RowDefinitions="Auto,Auto,*">
+                <TextBlock Text="Files" Classes="section-title" Margin="0,0,0,8" />
+                <TextBlock Grid.Row="1" Text="{Binding Files.Count, StringFormat='{}{0} files'}" Classes="secondary" Margin="0,0,0,16" />
+                <Grid Grid.Row="2">
+                    <DataGrid ItemsSource="{Binding Files}"
+                              Foreground="{DynamicResource SukiText}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserResizeColumns="True" CanUserSortColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Filename" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:FileItemViewModel">
+                                        <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding FullPath}"
+                                                   Margin="12,0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Original start" Width="145">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:FileItemViewModel">
+                                        <TextBlock Text="{Binding OriginalStart}" Margin="12,0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="New start" Width="130">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:FileItemViewModel">
+                                        <TextBlock Text="{Binding AdjustedStart}" Margin="12,0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Status" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:FileItemViewModel">
+                                        <Border Classes="status" Classes.ready="{Binding IsReady}"
+                                                Classes.success="{Binding IsSuccess}" Classes.error="{Binding IsError}"
+                                                IsVisible="{Binding HasStatus}" ToolTip.Tip="{Binding Result}">
+                                            <TextBlock Text="{Binding Status}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Grid>
+        </suki:GlassCard>
+    </Grid>
+</Window>

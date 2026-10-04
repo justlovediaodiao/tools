@@ -1,0 +1,62 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI">
+    <Style Selector="suki|GlassCard">
+        <Setter Property="IsOpaque" Value="True" />
+        <Setter Property="CornerRadius" Value="12" />
+    </Style>
+    <Style Selector="Button.main-action">
+        <Setter Property="Foreground" Value="{DynamicResource MainActionForeground}" />
+    </Style>
+    <Style Selector="Button.main-action:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SukiAccentColor}" />
+    </Style>
+    <Style Selector="Button.output-selected">
+        <Setter Property="Background" Value="{DynamicResource StatusReadyBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource StatusReadyForeground}" />
+    </Style>
+    <Style Selector="TextBlock.section-title">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+    </Style>
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="LineHeight" Value="20" />
+    </Style>
+    <Style Selector="Border.status">
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="9,4" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource StatusSkipBackground}" />
+    </Style>
+    <Style Selector="Border.status TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource StatusSkipForeground}" />
+    </Style>
+    <Style Selector="Border.status.ready">
+        <Setter Property="Background" Value="{DynamicResource StatusReadyBackground}" />
+    </Style>
+    <Style Selector="Border.status.ready TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource StatusReadyForeground}" />
+    </Style>
+    <Style Selector="Border.status.success">
+        <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}" />
+    </Style>
+    <Style Selector="Border.status.success TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource StatusSuccessForeground}" />
+    </Style>
+    <Style Selector="Border.status.error">
+        <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}" />
+    </Style>
+    <Style Selector="Border.status.error TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource StatusErrorForeground}" />
+    </Style>
+</Styles>

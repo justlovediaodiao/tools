@@ -25,9 +25,6 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<PreviewPart> _splitPreviewParts = new();
 
-    [ObservableProperty]
-    private string _previewMessage = string.Empty;
-
     partial void OnSeparatorChanged(string value)
     {
         UpdateSplitPreview();
@@ -138,50 +135,27 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void Preview()
     {
-        if (Files.Count == 0)
+        if (Files.Count == 0 || string.IsNullOrEmpty(Separator) || string.IsNullOrWhiteSpace(Rule))
         {
-            PreviewMessage = "Add files before previewing.";
-            return;
-        }
-        if (string.IsNullOrEmpty(Separator))
-        {
-            PreviewMessage = "Enter a separator. A space is also supported.";
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(Rule))
-        {
-            PreviewMessage = "Enter a new rename, for example New_{0}.";
             return;
         }
 
-        var readyCount = 0;
-        var skippedCount = 0;
-        var selectedCount = 0;
         foreach (var item in Files)
         {
             if (!item.IsChecked || item.Status == SUCCESS) continue;
-            selectedCount++;
 
             var newName = FileName.PreviewRename(item.OriginalName, Separator, Rule);
             if (!string.IsNullOrEmpty(newName))
             {
                 item.Status = READY;
                 item.NewName = newName;
-                readyCount++;
             }
             else
             {
                 item.Status = SKIP;
                 item.NewName = string.Empty;
-                skippedCount++;
             }
         }
-
-        PreviewMessage = selectedCount == 0
-            ? "Check at least one file that has not already been renamed."
-            : skippedCount > 0
-                ? $"{readyCount} ready, {skippedCount} skipped. A placeholder index is outside the filename parts; indexes start at {{0}}."
-                : $"{readyCount} ready. See the New name column.";
     }
 
     [RelayCommand]

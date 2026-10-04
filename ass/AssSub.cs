@@ -18,24 +18,26 @@ public class Ass
         _lines = [.. lines];
     }
 
-    public void Adjust(int milliseconds)
+    public (string OriginalStart, string AdjustedStart)? Adjust(int milliseconds)
     {
+        (string OriginalStart, string AdjustedStart)? preview = null;
         var (startCol, endCol, index) = EventsLine();
         for (var i = index; i < _lines.Length; i++)
         {
             if (_lines[i].StartsWith("Dialogue:", StringComparison.Ordinal))
             {
-                // start time
                 var (time, startIndex, endIndex) = GetTime(_lines[i], startCol);
-                time += milliseconds;
-                _lines[i] = _lines[i][..startIndex] + FormatTime(time) + _lines[i][(endIndex + 1)..];
+                var originalStart = _lines[i][startIndex..(endIndex + 1)];
+                var adjustedStart = FormatTime(checked(time + milliseconds));
+                _lines[i] = _lines[i][..startIndex] + adjustedStart + _lines[i][(endIndex + 1)..];
 
-                // end time
                 (time, startIndex, endIndex) = GetTime(_lines[i], endCol);
-                time += milliseconds;
-                _lines[i] = _lines[i][..startIndex] + FormatTime(time) + _lines[i][(endIndex + 1)..];
+                var adjustedEnd = FormatTime(checked(time + milliseconds));
+                _lines[i] = _lines[i][..startIndex] + adjustedEnd + _lines[i][(endIndex + 1)..];
+                preview ??= (originalStart, adjustedStart);
             }
         }
+        return preview;
     }
 
     private (int StartCol, int EndCol, int Index) EventsLine()

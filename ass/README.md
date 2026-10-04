@@ -1,17 +1,11 @@
 # ASS Timeline Adjuster
 
-A command-line tool for adjusting ASS subtitle timelines.
+Batch adjust ASS subtitle timings in a desktop GUI.
+
+## Run
 
 ## Build
 
 ```
 dotnet publish
 ```
-
-## Usage
-
-```
-ass <input.ass> <milliseconds> <output.ass>
-```
-
-Positive offsets delay subtitles; negative offsets move them earlier.

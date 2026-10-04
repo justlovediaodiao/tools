@@ -54,8 +54,6 @@
                     <Separator />
                     <Button Name="PreviewButton" Classes="Outlined" Content="Preview" Command="{Binding PreviewCommand}"
                             HorizontalAlignment="Stretch" />
-                    <TextBlock Name="PreviewFeedback" Classes="secondary" Text="{Binding PreviewMessage}"
-                               TextWrapping="Wrap" />
                     <Button Classes="Flat main-action" Content="Run rename" Command="{Binding StartCommand}"
                             HorizontalAlignment="Stretch" />
                 </StackPanel>
