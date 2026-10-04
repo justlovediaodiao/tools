@@ -144,7 +144,7 @@ class DshSessionStore:
             / self._project_key(cwd)
             / session_id
         )
-        return session_dir / "session.v3.jsonl.zstd"
+        return session_dir / "session.v4.jsonl.zstd"
 
     @staticmethod
     def _logical_lines(path: Path):

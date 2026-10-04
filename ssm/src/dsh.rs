@@ -61,7 +61,7 @@ impl DshSessionStore {
             .join("sessions")
             .join(Self::project_key(cwd))
             .join(session_id);
-        session_dir.join("session.v3.jsonl.zstd")
+        session_dir.join("session.v4.jsonl.zstd")
     }
 
     fn read_session_metadata(path: &Path) -> StoreResult<(String, String, DateTime<Local>)> {
