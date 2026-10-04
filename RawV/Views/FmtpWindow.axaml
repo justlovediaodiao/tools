@@ -1,11 +1,11 @@
-<suki:SukiWindow x:Class="RawV.Views.FmtpWindow"
+<Window x:Class="RawV.Views.FmtpWindow"
                  x:DataType="vm:FmtpWindowViewModel"
                  xmlns="https://github.com/avaloniaui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:vm="using:RawV.ViewModels"
                  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
                  Width="1000" Height="760" MinWidth="880" MinHeight="680"
-                 BackgroundStyle="Flat" BackgroundAnimationEnabled="False"
+                 Background="{DynamicResource SukiStrongBackground}"
                  Icon="avares://RawV/Assets/RawVLogo.ico" Title="MTP sync">
     <Grid Margin="24" RowDefinitions="Auto,*,Auto">
         <StackPanel Spacing="6" Margin="0,0,0,20">
@@ -93,4 +93,4 @@
             </StackPanel>
         </Grid>
     </Grid>
-</suki:SukiWindow>
+</Window>

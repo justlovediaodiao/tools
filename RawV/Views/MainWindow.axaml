@@ -1,4 +1,4 @@
-<suki:SukiWindow x:Class="RawV.Views.MainWindow"
+<Window x:Class="RawV.Views.MainWindow"
                  x:DataType="vm:MainWindowViewModel"
                  xmlns="https://github.com/avaloniaui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,7 +7,7 @@
                  xmlns:services="using:RawV.Services"
                  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
                  Width="1400" Height="900" MinWidth="800" MinHeight="500"
-                 BackgroundStyle="Flat" BackgroundAnimationEnabled="False"
+                 Background="{DynamicResource SukiStrongBackground}"
                  Icon="avares://RawV/Assets/RawVLogo.ico" Title="RawV">
     <Grid RowDefinitions="Auto,*,Auto">
         <Border Name="CommandBar" Background="{DynamicResource SukiCardBackground}"
@@ -136,4 +136,4 @@
             </Grid>
         </Border>
     </Grid>
-</suki:SukiWindow>
+</Window>

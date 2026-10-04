@@ -1,4 +1,3 @@
-using SukiUI.Controls;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -12,7 +11,7 @@ using RawV.ViewModels;
 
 namespace RawV.Views;
 
-public partial class MainWindow : SukiWindow
+public partial class MainWindow : Window
 {
     private ListBox? _thumbnailListBox;
     private ScrollViewer? _scrollViewer;

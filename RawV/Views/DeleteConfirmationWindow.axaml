@@ -1,9 +1,9 @@
-<suki:SukiWindow x:Class="RawV.Views.DeleteConfirmationWindow"
+<Window x:Class="RawV.Views.DeleteConfirmationWindow"
                  xmlns="https://github.com/avaloniaui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
                  Width="540" Height="400" CanResize="False" WindowStartupLocation="CenterOwner"
-                 BackgroundStyle="Flat" BackgroundAnimationEnabled="False"
+                 Background="{DynamicResource SukiStrongBackground}"
                  Icon="avares://RawV/Assets/RawVLogo.ico" Title="Move photo to bin">
     <suki:GlassCard Margin="20">
         <Grid Margin="24" RowDefinitions="Auto,*,Auto">
@@ -22,4 +22,4 @@
             </StackPanel>
         </Grid>
     </suki:GlassCard>
-</suki:SukiWindow>
+</Window>

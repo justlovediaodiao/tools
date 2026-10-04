@@ -1,4 +1,4 @@
-<suki:SukiWindow xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,8 +11,7 @@
                  Icon="avares://filerename/Assets/FileRenameLogo.ico"
                  Title="File Rename"
                  Width="1100" Height="720"
-                 BackgroundStyle="Gradient"
-                 BackgroundAnimationEnabled="False"
+                 Background="{DynamicResource SukiStrongBackground}"
                  MinWidth="900" MinHeight="620">
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -72,10 +71,10 @@
                 </Grid>
                 <WrapPanel Grid.Row="1" Margin="0,0,0,16">
                     <Button Classes="Outlined" Content="Add files" Command="{Binding AddFilesCommand}"
-                            CommandParameter="{Binding $parent[suki:SukiWindow].StorageProvider}"
+                            CommandParameter="{Binding $parent[Window].StorageProvider}"
                             Margin="0,0,8,8" />
                     <Button Classes="Outlined" Content="Add folder" Command="{Binding AddFolderCommand}"
-                            CommandParameter="{Binding $parent[suki:SukiWindow].StorageProvider}"
+                            CommandParameter="{Binding $parent[Window].StorageProvider}"
                             Margin="0,0,8,8" />
                     <Button Classes="Basic" Content="Remove selected" Command="{Binding RemoveSelectedCommand}"
                             Margin="0,0,0,8" />
@@ -134,4 +133,4 @@
             </Grid>
         </suki:GlassCard>
     </Grid>
-</suki:SukiWindow>
+</Window>

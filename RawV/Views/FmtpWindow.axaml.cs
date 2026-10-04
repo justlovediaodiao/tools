@@ -1,4 +1,3 @@
-using SukiUI.Controls;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -7,7 +6,7 @@ using System.Collections.Specialized;
 
 namespace RawV.Views;
 
-public partial class FmtpWindow : SukiWindow
+public partial class FmtpWindow : Window
 {
     private ListBox? _logListBox;
 

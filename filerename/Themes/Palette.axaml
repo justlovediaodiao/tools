@@ -12,7 +12,7 @@
             <Color x:Key="SukiLowText">#606579</Color>
             <Color x:Key="SukiMuteText">#70758A</Color>
             <Color x:Key="SukiBorderBrush">#E5E7F0</Color>
-            <Color x:Key="GlassBorderBrush">#E5E7F0</Color>
+            <Color x:Key="GlassBorderBrush">#E0E5EF</Color>
             <Color x:Key="SukiControlBorderBrush">#C9CDDC</Color>
             <SolidColorBrush x:Key="StatusReadyBackground">#EEF0FF</SolidColorBrush>
             <SolidColorBrush x:Key="StatusReadyForeground">#4F46E5</SolidColorBrush>
@@ -34,7 +34,7 @@
             <Color x:Key="SukiLowText">#ADB3C9</Color>
             <Color x:Key="SukiMuteText">#989FB8</Color>
             <Color x:Key="SukiBorderBrush">#363B4E</Color>
-            <Color x:Key="GlassBorderBrush">#363B4E</Color>
+            <Color x:Key="GlassBorderBrush">#344056</Color>
             <Color x:Key="SukiControlBorderBrush">#505870</Color>
             <SolidColorBrush x:Key="StatusReadyBackground">#303451</SolidColorBrush>
             <SolidColorBrush x:Key="StatusReadyForeground">#B7BFFF</SolidColorBrush>
