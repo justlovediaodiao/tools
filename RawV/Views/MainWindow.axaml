@@ -29,7 +29,7 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <Button Name="MtpSyncButton" Content="MTP sync" Classes="Small Basic compact" Click="OnFmtpClick"
                             IsVisible="{x:Static services:FmtpService.IsExecutableAvailable}" Focusable="False" />
-                    <TextBlock Text="Confirm delete" Classes="secondary" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock Text="Confirm delete" VerticalAlignment="Center" />
                     <ToggleSwitch Name="ConfirmDeleteToggle" IsChecked="{Binding DeleteConfirmationEnabled, Mode=TwoWay}"
                                   ToolTip.Tip="Confirm before moving the photo and matching RAW files to the Recycle Bin"
                                   Focusable="False" />
