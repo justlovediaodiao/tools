@@ -23,7 +23,11 @@ public partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel()
     {
-        Files.CollectionChanged += (_, _) => OnPropertyChanged(nameof(OutputFolderHint));
+        Files.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(OutputFolderHint));
+            ClearFilesCommand.NotifyCanExecuteChanged();
+        };
     }
 
     [ObservableProperty]
@@ -37,6 +41,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(OpenFileCommand))]
     [NotifyCanExecuteChangedFor(nameof(ChooseOutputCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ClearFilesCommand))]
     [NotifyPropertyChangedFor(nameof(IsIdle))]
     private bool _isBusy;
 
@@ -60,6 +65,11 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     private bool CanChoose() => !IsBusy;
+
+    private bool CanClearFiles() => !IsBusy && Files.Count > 0;
+
+    [RelayCommand(CanExecute = nameof(CanClearFiles))]
+    private void ClearFiles() => Files.Clear();
 
     [RelayCommand(CanExecute = nameof(CanChoose))]
     private async Task OpenFile(IStorageProvider storageProvider)

@@ -44,7 +44,13 @@
         <suki:GlassCard Grid.Column="1">
             <Grid Margin="20" RowDefinitions="Auto,*">
                 <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                    <TextBlock Text="Files" Classes="section-title" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Files" Classes="section-title" VerticalAlignment="Center" />
+                        <Button Content="Clear files" Classes="Basic"
+                                IsVisible="{Binding !!Files.Count}" VerticalAlignment="Center"
+                                Command="{Binding ClearFilesCommand}"
+                                ToolTip.Tip="Clear the loaded file list" />
+                    </StackPanel>
                     <TextBlock Grid.Column="1" Text="{Binding Files.Count, StringFormat='{}{0} files'}"
                                Classes="secondary" VerticalAlignment="Center" />
                 </Grid>
